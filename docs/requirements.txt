@@ -1,0 +1,31 @@
+# Core web/API
+fastapi
+uvicorn[standard]
+
+# Database / ORM
+sqlalchemy
+alembic
+
+# Validation / settings
+pydantic
+python-dotenv
+
+# HTTP / networking
+requests
+
+# Security
+cryptography
+passlib[bcrypt]
+python-jose
+
+# AWS
+boto3
+
+# Email / background tasks
+jinja2
+
+# Dev / testing
+pytest
+pytest-cov
+ruff
+mypy

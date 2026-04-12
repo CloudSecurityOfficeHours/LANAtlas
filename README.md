@@ -23,3 +23,5 @@ Non-Functional Requirements
 - Resilient agent behavior (buffering, retries)
 - Cloud deployment using AWS best practices
 - Clean, maintainable Python codebase
+
+See [Contributor Setup](docs/contributor-setup.md) for local environment and `.env` instructions.
