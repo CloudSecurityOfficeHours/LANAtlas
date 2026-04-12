@@ -232,12 +232,3 @@ If you use tools such as Claude, Cursor, or ChatGPT-assisted workflows:
 - Do not upload real customer or network data into external tools unless approved
 - Keep local tool state and personal config files out of version control
 
-## Suggested location in the repo
-
-A good place for this file is:
-
-```text
-docs/contributor-setup.md
-```
-
-You can also link to it from the main `README.md`.
