@@ -1,28 +1,30 @@
 # Core web/API
-fastapi==0.136.1
-uvicorn[standard]==0.32.1
+fastapi>=0.136.1     
+uvicorn[standard]>=0.46.0  
 
 # Database / ORM
 sqlalchemy==2.0.36
-alembic==1.14.0
+alembic==1.18.4
 
 # Validation / settings
-pydantic==2.10.3
-python-dotenv==1.0.1
+pydantic==2.13.3
+python-dotenv==1.0.1  
 
 # HTTP / networking
 requests==2.32.3
 
 # Security
 cryptography==44.0.0
-passlib[bcrypt]==1.7.4
-python-jose==3.3.0
+pwdlib>=0.3.0
+pyJWT[crypto]>=2.12.1
 
 # AWS
-boto3==1.35.78
+boto3>=1.35.78
 
 # Email / background tasks
 jinja2==3.1.4
+dramatiq>=2.1.0  
+redis>=8.6.2     
 
 # Dev / testing (Optional)
 pytest==8.3.4
