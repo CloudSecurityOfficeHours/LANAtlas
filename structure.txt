@@ -1,0 +1,21 @@
+lan-atlas/
+    app/
+        models/
+            __init__.py
+            organization.py
+            alert_type.py
+            user.py
+            site.py
+            agent.py
+            device.py
+            observation.py
+            service.py
+            alert.py
+            analyst_note.py
+        database.py
+        seed.py
+    migrations/          Alembic lives here
+    requirements.txt
+    .env                 database credentials, never commit this
+    .gitignore           make sure .env is in here
+
