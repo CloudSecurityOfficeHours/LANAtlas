@@ -3,8 +3,10 @@ fastapi>=0.136.1
 uvicorn[standard]>=0.46.0  
 
 # Database / ORM
+postgreSQL==18.3
 sqlalchemy==2.0.36
 alembic==1.18.4
+psycopg2==2.9.12
 
 # Validation / settings
 pydantic==2.13.3
@@ -31,3 +33,4 @@ pytest==8.3.4
 pytest-cov==6.0.0
 ruff==0.8.4
 mypy==1.13.0
+psycopg2-binary==2.9.12
