@@ -33,7 +33,7 @@ jobs:
           DEFAULT_BRANCH: "main"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LOG_LEVEL: INFO
-          SAVE_SUPER_LINTER_OUTPUT: true
-          SAVE_SUPER_LINTER_SUMMARY: true
-          SUPER_LINTER_OUTPUT_DIRECTORY_NAME: super-linter-report
-          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
+          #SAVE_SUPER_LINTER_OUTPUT: true
+          #SAVE_SUPER_LINTER_SUMMARY: true
+          #SUPER_LINTER_OUTPUT_DIRECTORY_NAME: super-linter-report
+          #ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
