@@ -37,3 +37,8 @@ jobs:
           SAVE_SUPER_LINTER_SUMMARY: true
           SUPER_LINTER_OUTPUT_DIRECTORY_NAME: super-linter-report
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
+
+          # Disable unwanted linters:
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
