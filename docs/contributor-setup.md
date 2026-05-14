@@ -69,13 +69,13 @@ This project uses a local `.env` file for development settings.
 
 Copy the example file:
 
-### macOS / Linux
+### macOS / Linux Example
 
 ```bash
 cp .env.example .env
 ```
 
-### Windows PowerShell
+### Windows PowerShell Example
 
 ```powershell
 Copy-Item .env.example .env
