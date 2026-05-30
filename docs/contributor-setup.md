@@ -166,7 +166,7 @@ deactivate
 
 ## Recommended first-time setup
 
-### macOS / Linux
+### macOS / Linux Quick Start
 
 ```bash
 git clone <your-repo-url>
@@ -178,7 +178,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-### Windows PowerShell
+### Windows PowerShell Quick Start
 
 ```powershell
 git clone <your-repo-url>
