@@ -293,6 +293,16 @@ scratch/
 playground/
 
 # ------------------------------
+# Local linting / CI tooling binaries
+# ------------------------------
+actionlint
+.textlintrc
+.textlintrc.js
+.textlintrc.json
+package.json
+package-lock.json
+
+# ------------------------------
 # AI assistant local files
 # Keep shared instructions if you want them in repo,
 # but ignore personal/local assistant state
