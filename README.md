@@ -25,3 +25,5 @@ Non-Functional Requirements
 - Clean, maintainable Python codebase
 
 See [Contributor Setup](docs/contributor-setup.md) for local environment and `.env` instructions.
+
+See [Super-Linter Guide](docs/super-linter-guide.md) for a walkthrough of this repo's current state and what's needed to keep the Super-Linter GitHub Action passing.
