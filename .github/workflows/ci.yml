@@ -60,3 +60,4 @@ jobs:
         pull_request:
           branches: [main]
         workflow_dispatch:
+        
