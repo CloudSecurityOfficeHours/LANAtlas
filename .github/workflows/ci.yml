@@ -1,0 +1,55 @@
+name: CI
+
+on: 
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  mypy:
+    name: Type check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r docs/requirements-dev.txt
+
+      - name: Run mypy
+        run: |
+          if find . -name '*.py' -not -path './.git/*' | grep -q .; then
+            mypy .
+          else
+            echo "No Python source files yet; skipping mypy."
+          fi
+
+  pip-audit:
+    name: Dependency vulnerability scan (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install pip-audit
+        run: |
+          pip install --upgrade pip
+          pip install pip-audit
+
+      - name: Audit runtime dependencies
+        run: pip-audit -r docs/requirements.txt
+
+      - name: Audit dev dependencies
+        run: pip-audit -r docs/requirements-dev.txt
