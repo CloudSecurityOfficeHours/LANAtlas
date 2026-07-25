@@ -25,7 +25,7 @@ boto3>=1.35.78
 # Email / background tasks
 jinja2==3.1.6
 dramatiq>=2.1.0  
-redis>=8.8.1
+redis==8.8.1
 
 # Dev / testing (Optional)
 pytest==9.0.3
