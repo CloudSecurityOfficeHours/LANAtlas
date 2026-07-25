@@ -9,13 +9,13 @@ psycopg2==2.9.12
 
 # Validation / settings
 pydantic==2.13.3
-python-dotenv==1.0.1  
+python-dotenv==1.2.2  
 
 # HTTP / networking
-requests==2.32.3
+requests==2.33.0
 
 # Security
-cryptography==44.0.0
+cryptography==48.0.1
 pwdlib>=0.3.0
 pyJWT[crypto]>=2.12.1
 
@@ -23,12 +23,12 @@ pyJWT[crypto]>=2.12.1
 boto3>=1.35.78
 
 # Email / background tasks
-jinja2==3.1.4
+jinja2==3.1.6
 dramatiq>=2.1.0  
 redis>=5.0.0  
 
 # Dev / testing (Optional)
-pytest==8.3.4
+pytest==9.0.3
 pytest-cov==6.0.0
 ruff==0.8.4
 mypy==1.13.0
