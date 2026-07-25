@@ -52,3 +52,11 @@ jobs:
 
       - name: Audit dev dependencies
         run: pip-audit -r docs/requirements-dev.txt
+        
+      
+      on:
+        push:
+          branches: [main]
+        pull_request:
+          branches: [main]
+        workflow_dispatch:
