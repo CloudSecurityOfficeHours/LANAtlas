@@ -1,0 +1,26 @@
+
+How identity_engine.py Distributes Across This Structure
+Current function                New home
+────────────────────────────    ─────────────────────────────────
+SIGNAL_WEIGHTS                → config/identity.py
+CONFIDENCE_THRESHOLDS         → config/identity.py
+TIER_CONFIDENCE_CEILING       → config/identity.py
+HARDWARE_ANCHORED_SIGNALS     → config/identity.py
+TIER_CLASSIFICATION_SOURCE    → config/identity.py
+MISSING_THRESHOLD_BY_TYPE     → config/alerts.py
+SCAN_TIERS                    → config/scanning.py
+
+compute_payload_hash()        → services/deduplication.py
+is_duplicate_observation()    → repositories/observations.py
+find_candidates()             → repositories/signals.py
+load_signals()                → repositories/signals.py
+update_signals()              → repositories/signals.py
+create_device()               → repositories/devices.py
+link_observation()            → repositories/observations.py
+
+extract_signals()             → services/identity.py
+score_candidate()             → services/identity.py
+is_hardware_anchored()        → services/identity.py
+get_confidence_ceiling()      → services/identity.py
+calculate_identity_strength() → services/identity.py
+resolve_observation()         → services/identity.py  ← top-level orchestrator

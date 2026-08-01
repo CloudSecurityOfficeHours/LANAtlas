@@ -1,0 +1,5 @@
+Once you've added it to your schema file and run it against your test database, run this to confirm the trigger actually blocks mutation as intended:
+
+INSERT INTO audit_log (organization_id, action, entity_type) VALUES (1, 'test.action', 'device');
+UPDATE audit_log SET action = 'tampered' WHERE action = 'test.action';
+-- should raise: audit_log rows are immutable and cannot be updated or deleted
