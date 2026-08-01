@@ -1,0 +1,84 @@
+lanatlas/
+│
+├── agents/                         # On-prem agent — separate deployable
+│   ├── scanner.py                  # ping/ARP/port scan
+│   ├── heartbeat.py                # keepalive to cloud API
+│   ├── buffer.py                   # offline buffering and retry
+│   ├── signer.py                   # HMAC-SHA256 payload signing
+│   └── collector.py                # orchestrates scan → sign → submit
+│
+├── api/                            # HTTP boundary — FastAPI/Flask
+│   ├── routes/
+│   │   ├── agents.py               # observation submission, heartbeat
+│   │   ├── devices.py              # device list, authorize, rename
+│   │   ├── alerts.py               # alert list, acknowledge, resolve
+│   │   ├── sites.py                # site config, business hours
+│   │   └── auth.py                 # OAuth callback, token refresh
+│   ├── middleware/
+│   │   ├── auth.py                 # JWT validation, org_id injection
+│   │   ├── rbac.py                 # role enforcement per endpoint
+│   │   └── rate_limit.py           # per-agent and per-user rate limiting
+│   └── schemas/
+│       ├── observations.py         # ObservationIn — input validation
+│       ├── devices.py              # DeviceOut — role-filtered response
+│       ├── alerts.py               # AlertOut, AlertStatusUpdate
+│       ├── agents.py               # AgentRegistration, AgentHeartbeat
+│       └── auth.py                 # TokenResponse, UserContext
+│
+├── config/                         # Centralized constants and settings
+│   ├── identity.py                 # SIGNAL_WEIGHTS, CONFIDENCE_THRESHOLDS
+│   │                               # TIER_CONFIDENCE_CEILING, HARDWARE_ANCHORED_SIGNALS
+│   │                               # TIER_CLASSIFICATION_SOURCE
+│   ├── alerts.py                   # MISSING_THRESHOLD_BY_TYPE, severity defaults
+│   └── scanning.py                 # SCAN_TIERS, port ranges, protocol lists
+│
+├── database/                       # Data access layer
+│   ├── pool.py                     # SQLAlchemy engine, pool config
+│   ├── db.py                       # get_db(), get_test_db() context managers
+│   ├── transaction.py              # @transactional decorator
+│   ├── exceptions.py               # DuplicateObservationError, DeviceNotFoundError, etc.
+│   └── logging.py                  # DB query audit logging
+│
+├── repositories/                   # One file per DB table group
+│   ├── devices.py                  # create, fetch, update identity_strength
+│   ├── observations.py             # insert, link to device, duplicate check
+│   ├── signals.py                  # find_candidates, load_signals, update_signals
+│   ├── agents.py                   # lookup by api_key_hash, validate site ownership
+│   ├── alerts.py                   # insert alert, update status, fetch unresolved
+│   ├── sites.py                    # fetch site, business hours lookup
+│   └── users.py                    # fetch by oauth_subject, role lookup
+│	└── audit.py                    # DB query audit_log table 
+│
+├── services/                       # Business logic — no direct DB access
+│   ├── identity.py                 # resolve_observation(), score_candidate()
+│   │                               # is_hardware_anchored(), get_confidence_ceiling()
+│   ├── deduplication.py            # compute_payload_hash(), is_duplicate()
+│   ├── classification.py           # infer device_type from signals and ports
+│   ├── thresholds.py               # get_missing_threshold(device_type)
+│   └── oui.py                      # lookup(mac) → vendor_name, reads data/oui.csv
+│
+├── workers/                        # Background polling jobs
+│   ├── alert_worker.py             # new_device, missing_device, new_port detection
+│   ├── identity_worker.py          # processes unresolved observations in batches
+│   └── cleanup_worker.py           # session expiry, observation archival
+│
+├── data/
+│   └── oui.csv                     # Bundled IEEE OUI vendor lookup — no outbound HTTP
+│
+├── tests/                          # Mirrors source structure
+│   ├── conftest.py                 # pytest fixtures — DB setup, seed data
+│   ├── database/
+│   │   └── test_db.py
+│   ├── repositories/
+│   │   ├── test_devices.py
+│   │   ├── test_observations.py
+│   │   └── test_signals.py
+│   ├── services/
+│   │   ├── test_identity.py        # current test_identity_engine.py migrated here
+│   │   └── test_deduplication.py
+│   └── workers/
+│       └── test_alert_worker.py
+│
+└── docs/
+    ├── schema-reference.md
+    └── owasp-controls-mapping.md
