@@ -1,0 +1,383 @@
+I think this is the right point to stop thinking about `db.py` as a *connection factory* and start thinking about it as the **Database Security Layer**.
+
+Every SQL statement in LAN Atlas should pass through this one module. If someone asks, "How does the application talk to PostgreSQL?", the answer should be: *there is exactly one approved way.*
+
+## Design Goals for Revision 5
+
+Since your primary objective is security, I'd establish these design principles before writing any code.
+
+### 1. One Public API
+
+The rest of the application should never call:
+
+```python
+cursor.execute(...)
+```
+
+or
+
+```python
+connection.commit()
+```
+
+directly.
+
+Instead, everything goes through methods like:
+
+```python
+db.fetch_one(...)
+db.fetch_all(...)
+db.execute(...)
+db.execute_many(...)
+db.transaction(...)
+```
+
+That gives us one enforcement point.
+
+---
+
+### 2. Unsafe SQL Should Be Impossible
+
+For example, this should never exist anywhere:
+
+```python
+sql = f"SELECT * FROM users WHERE id={user_id}"
+```
+
+Instead,
+
+```python
+db.fetch_one(
+    """
+    SELECT *
+    FROM users
+    WHERE user_id = %(user_id)s
+    """,
+    {"user_id": user_id},
+)
+```
+
+No exceptions.
+
+---
+
+### 3. Every Query is Parameterized
+
+No string concatenation.
+
+No f-strings.
+
+No `%` formatting.
+
+Ever.
+
+---
+
+### 4. Every Query is Logged
+
+Not like this:
+
+```text
+SELECT * FROM users WHERE password='hunter2'
+```
+
+Instead
+
+```text
+Timestamp
+
+Function
+
+Duration
+
+Rows returned
+
+Success/Failure
+```
+
+Never log secrets.
+
+Never log passwords.
+
+Never log tokens.
+
+---
+
+### 5. Automatic Transactions
+
+A function should not have to remember
+
+```python
+commit()
+rollback()
+close()
+```
+
+The API owns that responsibility.
+
+---
+
+### 6. Timeouts
+
+Every query should have a timeout.
+
+Example
+
+```text
+statement_timeout = 5000 ms
+```
+
+A malicious query should not be able to run forever.
+
+---
+
+### 7. Connection Pool
+
+Revision 5 should support pooling.
+
+Never create hundreds of new PostgreSQL connections.
+
+---
+
+### 8. Principle of Least Privilege
+
+The API should assume the PostgreSQL account has minimal permissions.
+
+For example
+
+```
+lanatlas_app
+```
+
+should not own the schema.
+
+It should only have
+
+* SELECT
+* INSERT
+* UPDATE
+
+where necessary.
+
+Administration should use an entirely different account.
+
+---
+Revised Architecture
+
+Instead of this:
+
+Application
+      │
+      ▼
+Repository Layer
+      │
+      ▼
+Database Security Layer
+      │
+      ▼
+psycopg Connection Pool
+      │
+      ▼
+PostgreSQL
+
+I'd recommend:
+
+Application
+      │
+      ▼
+Repository Layer
+      │
+      ▼
+Database Security Layer
+      │
+      ▼
+SQLAlchemy Engine & Connection Pool
+      │
+      ▼
+psycopg Driver
+      │
+      ▼
+PostgreSQL
+
+Notice something subtle.
+
+SQLAlchemy isn't replacing psycopg.
+
+It's managing it.
+
+Internally the stack becomes
+
+Application
+↓
+Your Database API
+↓
+SQLAlchemy Engine
+↓
+psycopg
+↓
+libpq
+↓
+PostgreSQL
+
+I think this is a very strong architecture because each layer has a single responsibility.
+
+Layer	    |               Responsibility
+Application	|               Business logic
+Repository	|               SQL queries
+Database Security Layer |	Transactions, logging, security, validation
+SQLAlchemy	|               Connection pooling and resource management
+psycopg     |	PostgreSQL protocol
+PostgreSQL	|   Storage
+↓
+
+SQLAlchemy Engine
+
+↓
+
+psycopg
+
+↓
+
+libpq
+
+↓
+
+PostgreSQL
+
+I think this is a very strong architecture because each layer has a single responsibility.
+
+Layer	Responsibility
+Application	Business logic
+Repository	SQL queries
+Database Security Layer	Transactions, logging, security, validation
+SQLAlchemy	Connection pooling and resource management
+psycopg	PostgreSQL protocol
+PostgreSQL	Storage
+
+
+# The Public API
+
+I'd keep it intentionally small.
+
+```python
+db.fetch_one()
+
+db.fetch_all()
+
+db.execute()
+
+db.execute_many()
+
+db.scalar()
+
+db.transaction()
+```
+
+That's it.
+
+If we need a seventh function, there should be a compelling reason.
+
+---
+
+# Example
+
+Instead of
+
+```python
+with get_db() as conn:
+
+    cur = conn.cursor()
+
+    cur.execute(...)
+
+    row = cur.fetchone()
+```
+
+you'd write
+
+```python
+row = db.fetch_one(
+    SQL_GET_OBSERVATION,
+    {"id": observation_id},
+)
+```
+
+or
+
+```python
+count = db.scalar(
+    """
+    SELECT COUNT(*)
+    FROM observations
+    """
+)
+```
+
+The calling code becomes focused on business logic instead of database mechanics.
+
+---
+
+# An additional security feature
+
+I'd also introduce **query identifiers**.
+
+Rather than logging raw SQL, every query has a stable name:
+
+```python
+db.fetch_one(
+    query_name="get_observation",
+    sql=SQL_GET_OBSERVATION,
+    params={"id": obs_id},
+)
+```
+
+The logs become:
+
+```
+2026-07-17 15:44:08
+
+Query:
+get_observation
+
+Duration:
+14 ms
+
+Rows:
+1
+
+Status:
+SUCCESS
+```
+
+That makes operational monitoring and auditing much cleaner while avoiding unnecessary exposure of SQL text in logs.
+
+---
+
+## My recommendation for Revision 5
+
+I would build the module in phases rather than trying to solve everything at once:
+
+**Phase 1 — Core**
+
+* Connection pool
+* Context-managed transactions
+* `fetch_one`, `fetch_all`, `execute`, `execute_many`, `scalar`
+
+**Phase 2 — Security**
+
+* Query timeouts
+* Structured logging
+* Query identifiers
+* Exception translation
+* Input validation
+* SQL injection safeguards (parameter enforcement)
+
+**Phase 3 — Reliability**
+
+* Retry logic for transient failures
+* Health checks
+* Metrics
+* Read-only transaction support
+* Connection diagnostics
+
+I think this approach gives you a foundation that's easy to audit, minimizes repetitive code, and creates natural enforcement points for security policies. It also keeps the API small enough that every database interaction in LAN Atlas will be easy to review. Over time, this will likely do more to reduce security risk than the choice between `psycopg` and SQLAlchemy alone.
