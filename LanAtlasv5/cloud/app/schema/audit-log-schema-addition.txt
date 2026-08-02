@@ -1,0 +1,92 @@
+-- =============================================================================
+-- AUDIT & COMPLIANCE GROUP
+-- Table: audit_log
+-- New in v2.0 — records every human-initiated mutation to tenant-owned data.
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- audit_log
+-- Immutable record of every human-initiated mutation to tenant-owned data —
+-- device renamed/deleted/authorized, alert acknowledged/resolved, user role
+-- changed, agent key rotated, site business hours changed, etc.
+--
+-- This is intentionally separate from observations (machine scan activity),
+-- alerts (system-detected conditions), and analyst_notes (optional free-text
+-- commentary). audit_log is mandatory and structured: every mutation an
+-- authenticated user makes through the dashboard produces exactly one row
+-- here, written by the service layer immediately after the mutation
+-- succeeds — never before, so a failed mutation never produces a
+-- misleading entry.
+--
+-- Immutability is enforced below by trigger, not application convention —
+-- this holds even against a compromised application server that still has
+-- valid database credentials.
+--
+-- OWASP A09 — Security Logging and Alerting Failures
+-- OWASP ASVS V7 — Error Handling and Logging
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE audit_log (
+    id              BIGSERIAL       PRIMARY KEY,
+    organization_id INTEGER         NOT NULL,
+    user_id         INTEGER,                    -- who made the change; NULL only if the user row was later deleted
+    action          VARCHAR(60)     NOT NULL,    -- e.g. 'device.rename', 'alert.resolve', 'user.role_change'
+    entity_type     VARCHAR(30)     NOT NULL,    -- 'device' | 'alert' | 'user' | 'site' | 'agent'
+    entity_id       INTEGER,                     -- nullable: some actions (e.g. bulk operations) may not map to one row
+    before_value    JSONB,                       -- entity state before the change — secrets redacted before write
+    after_value     JSONB,                       -- entity state after the change — secrets redacted before write
+    ip_address      VARCHAR(45),                 -- IPv4 or IPv6, captured from the request at write time
+    created_at      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_audit_log_organization
+        FOREIGN KEY (organization_id) REFERENCES organization(id)
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_audit_log_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT ck_audit_log_entity_type
+        CHECK (entity_type IN ('device', 'alert', 'user', 'site', 'agent'))
+);
+
+CREATE INDEX idx_audit_log_org_time ON audit_log (organization_id, created_at DESC);
+CREATE INDEX idx_audit_log_entity   ON audit_log (entity_type, entity_id);
+
+COMMENT ON TABLE audit_log IS
+    'Immutable trail of human-initiated mutations to tenant data. Distinct from observations (machine activity) and analyst_notes (optional commentary). OWASP A09.';
+COMMENT ON COLUMN audit_log.before_value IS
+    'JSONB snapshot of entity state before the mutation. Must never contain api_key_hash, token_hash, or any hashed secret — redact at the application layer before write.';
+COMMENT ON COLUMN audit_log.after_value IS
+    'JSONB snapshot of entity state after the mutation. Same redaction requirement as before_value.';
+
+-- ---------------------------------------------------------------------------
+-- Immutability enforcement
+-- Once written, an audit_log row can never be altered or removed, by design
+-- and by database trigger — not merely by application-layer convention.
+-- Enforcing this at the database layer means even a fully compromised
+-- application server with valid database credentials cannot tamper with
+-- the audit trail after the fact.
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION fn_prevent_audit_log_mutation()
+RETURNS TRIGGER
+LANGUAGE plpgsql AS $$
+BEGIN
+    RAISE EXCEPTION 'audit_log rows are immutable and cannot be updated or deleted';
+END;
+$$;
+
+CREATE TRIGGER trg_audit_log_no_update
+    BEFORE UPDATE ON audit_log
+    FOR EACH ROW EXECUTE FUNCTION fn_prevent_audit_log_mutation();
+
+CREATE TRIGGER trg_audit_log_no_delete
+    BEFORE DELETE ON audit_log
+    FOR EACH ROW EXECUTE FUNCTION fn_prevent_audit_log_mutation();
+
+-- =============================================================================
+-- INDEX SUMMARY ADDITION — append to the existing index summary comment block
+-- =============================================================================
+-- audit_log          : idx_audit_log_org_time, idx_audit_log_entity
+-- =============================================================================

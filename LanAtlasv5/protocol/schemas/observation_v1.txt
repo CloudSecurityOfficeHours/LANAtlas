@@ -1,0 +1,4 @@
+# protocol/schemas/observation_v2.py
+class ObservationV2(ObservationV1):
+    hardware_uuid: str | None = None   # new field for WMI-authenticated scans
+    serial: str | None = None
