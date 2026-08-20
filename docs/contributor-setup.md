@@ -35,6 +35,7 @@ Replace `<your-repo-url>` with the actual repository URL.
 
 Create a local virtual environment named `.venv`.
 
+
 ### macOS / Linux
 
 ```bash
@@ -68,13 +69,13 @@ This project uses a local `.env` file for development settings.
 
 Copy the example file:
 
-### macOS / Linux
+### macOS / Linux Example
 
 ```bash
 cp .env.example .env
 ```
 
-### Windows PowerShell
+### Windows PowerShell Example
 
 ```powershell
 Copy-Item .env.example .env
@@ -133,7 +134,7 @@ SCAN_MAX_HOSTS=1024
 DASHBOARD_ORIGIN=http://localhost:3000
 ```
 
-## 6. Keep secrets out of git
+## 6. Keep secrets out of Git
 
 Never commit real secrets or local-only files.
 
@@ -165,7 +166,7 @@ deactivate
 
 ## Recommended first-time setup
 
-### macOS / Linux
+### macOS / Linux Quick Start
 
 ```bash
 git clone <your-repo-url>
@@ -177,7 +178,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-### Windows PowerShell
+### Windows PowerShell Quick Start
 
 ```powershell
 git clone <your-repo-url>
@@ -213,7 +214,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 Then try activating the virtual environment again.
 
-### `.env` is already being tracked by git
+### `.env` is already being tracked by Git
 
 If `.env` was accidentally added before `.gitignore` was updated, untrack it with:
 
@@ -227,7 +228,7 @@ Then commit the removal.
 
 If you use tools such as Claude, Cursor, or ChatGPT-assisted workflows:
 
-- Do not commit personal assistant settings unless the team explicitly wants shared instructions in the repo
+- Do not commit personal assistant settings unless the team explicitly wants shared instructions in the repository
 - Do not paste secrets into prompts
 - Do not upload real customer or network data into external tools unless approved
 - Keep local tool state and personal config files out of version control

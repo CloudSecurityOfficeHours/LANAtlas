@@ -15,7 +15,7 @@ python-dotenv==1.2.2
 requests==2.33.0
 
 # Security
-cryptography==48.0.1
+cryptography>=50.0.0
 pwdlib>=0.3.0
 pyJWT[crypto]>=2.12.1
 
