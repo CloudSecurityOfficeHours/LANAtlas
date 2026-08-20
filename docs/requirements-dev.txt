@@ -3,8 +3,8 @@ uvicorn[standard]==0.46.0
 sqlalchemy==2.0.36
 alembic==1.14.0
 pydantic==2.10.3
-python-dotenv==1.0.1
-requests==2.32.3
+python-dotenv==1.2.2
+requests==2.33.0
 cryptography>=50.0.0
 passlib[bcrypt]==1.7.4
 pyjwt[crypto]==2.13.0
