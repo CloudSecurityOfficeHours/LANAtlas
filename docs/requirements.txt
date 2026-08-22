@@ -1,5 +1,5 @@
 # Core web/API
-fastapi>=0.136.1     
+fastapi>=0.141.1     
 uvicorn[standard]>=0.46.0  
 
 # Database / ORM
