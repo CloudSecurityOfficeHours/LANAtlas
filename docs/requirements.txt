@@ -24,7 +24,7 @@ boto3>=1.35.78
 
 # Email / background tasks
 jinja2==3.1.6
-dramatiq>=2.1.0  
+dramatiq>=2.2.0  
 redis>=8.0.1
 
 # Dev / testing (Optional)
