@@ -3,7 +3,7 @@ fastapi>=0.141.1
 uvicorn[standard]>=0.46.0  
 
 # Database / ORM
-sqlalchemy==2.0.36
+sqlalchemy==2.0.52
 alembic==1.18.4
 psycopg2==2.9.12
 
