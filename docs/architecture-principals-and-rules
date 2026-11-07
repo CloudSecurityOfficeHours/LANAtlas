@@ -1,0 +1,19 @@
+##Architecture Principals 
+1.Least Privilege — every component has only the permissions it requires.
+2.Single Responsibility — each module has one clearly defined purpose.
+3.Explicit Over Implicit — avoid hidden behavior and "magic."
+4.Fail Securely — errors should default to a safe state (rollback, deny access, release resources).
+5.Centralized Enforcement — security-critical rules are implemented in one place.
+6.Defense in Depth — don't rely on any single control to prevent failures.
+7.Auditability — every important action should be traceable without exposing sensitive data.
+
+
+
+## Architecture Rules
+No direct DB access from api/ or services/. All DB interaction goes through repositories/. This is the single most important architectural rule for security — it's what keeps SQL confined to one layer and makes injection audits tractable.
+
+1. `api/` calls `services/` only — never `repositories/` or `database/` directly
+2. `services/` calls `repositories/` only — never `database/` directly
+3. `repositories/` calls `database/` only — all SQL lives here
+4. `workers/` follows the same rules as `api/` — calls `services/` only
+5. No raw SQL strings outside `repositories/`
