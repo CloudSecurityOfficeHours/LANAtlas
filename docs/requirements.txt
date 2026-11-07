@@ -1,21 +1,21 @@
 # Core web/API
-fastapi>=0.136.1     
+fastapi>=0.141.1     
 uvicorn[standard]>=0.46.0  
 
 # Database / ORM
-sqlalchemy==2.0.36
+sqlalchemy==2.0.52
 alembic==1.18.4
 psycopg2==2.9.12
 
 # Validation / settings
-pydantic==2.13.3
+pydantic==2.13.4
 python-dotenv==1.2.2  
 
 # HTTP / networking
 requests==2.33.0
 
 # Security
-cryptography==48.0.1
+cryptography>=50.0.0
 pwdlib>=0.3.0
 pyJWT[crypto]>=2.12.1
 
@@ -25,11 +25,11 @@ boto3>=1.35.78
 # Email / background tasks
 jinja2==3.1.6
 dramatiq>=2.2.0  
-redis>=8.0.1
+redis>=8.1.0
 
 # Dev / testing (Optional)
 pytest==9.0.3
 pytest-cov==6.0.0
-ruff==0.8.4
+ruff==0.16.4
 mypy==1.13.0
 psycopg2-binary==2.9.12
