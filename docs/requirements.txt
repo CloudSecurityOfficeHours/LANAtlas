@@ -8,7 +8,7 @@ alembic==1.18.4
 psycopg2==2.9.12
 
 # Validation / settings
-pydantic==2.13.3
+pydantic==2.13.4
 python-dotenv==1.2.2  
 
 # HTTP / networking
