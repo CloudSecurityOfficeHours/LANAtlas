@@ -1,0 +1,116 @@
+lanatlas/
+    cloud/                              
+        app/
+            schema/
+                schema.sql              
+            migrations/                 
+                env.py
+                versions/
+                    0001_initial_schema.py
+                    0002_add_audit_log.py
+
+            config/
+                identity.py             
+                alerts.py                
+
+            database/
+                pool.py                  
+                db.py                    
+                transaction.py           
+                exceptions.py            
+                audit.py                 
+                logging.py               
+
+            repositories/
+                devices.py               
+                signals.py               
+                observations.py           
+                audit.py                  
+                agents.py                 
+                alerts.py                 
+                users.py                  
+
+            services/
+                identity.py               
+                deduplication.py          
+                classification.py         
+                thresholds.py             
+                oui.py                    
+                alerting.py                
+                devices.py                 
+                alerts.py                  
+                users.py                   
+                agents.py                  
+                sites.py                   
+
+            api/
+                routes/
+                    agents.py              
+                    devices.py
+                    alerts.py
+                    sites.py
+                    auth.py
+                middleware/
+                    auth.py                
+                    rbac.py                
+                    rate_limit.py
+                schemas/
+                    devices.py             
+                    alerts.py              
+                    auth.py     
+					
+			workers/
+                alert_worker.py
+                identity_worker.py
+                cleanup_worker.py
+
+            data/
+                oui.csv                   
+
+        tests/
+            conftest.py                    
+            database/
+                test_db.py
+            repositories/
+                test_devices.py
+                test_observations.py
+                test_signals.py
+                test_audit.py
+            services/
+                test_identity.py           
+                test_deduplication.py
+            workers/
+                test_alert_worker.py
+
+        requirements.txt
+        .env                              
+        .gitignore
+
+    agent/                              
+        scanner.py
+        signer.py
+        buffer.py
+        heartbeat.py
+        collector.py
+        config.py                        
+        tests/
+            test_scanner.py
+            test_signer.py
+            test_buffer.py
+        requirements.txt                 
+        .env                             
+
+    protocol/                         
+        schemas/
+            observation_v1.py           
+            heartbeat_v1.py
+            auth_handshake_v1.py
+        tests/
+            test_observation_schema.py
+        VERSION
+        CHANGELOG.md
+
+    docs/
+        schema-reference.md
+        owasp-controls-mapping.md
+       
