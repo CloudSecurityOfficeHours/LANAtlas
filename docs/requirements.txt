@@ -16,7 +16,7 @@ requests==2.33.0
 # Security
 cryptography>=50.0.0
 pwdlib>=0.3.0
-pyJWT[crypto]>=2.12.1
+pyJWT[crypto]>=2.15.1
 
 # AWS
 boto3>=1.35.78
