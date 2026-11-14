@@ -1,6 +1,6 @@
 # Core web/API
 fastapi>=0.141.1     
-uvicorn[standard]>=0.46.0  
+uvicorn[standard]>=0.54.0  
 
 # Database / ORM
 sqlalchemy==2.0.52
