@@ -64,4 +64,3 @@ TIER_CLASSIFICATION_SOURCE: dict[str, str] = {
     "WMI":             "WMI",
     "SSH":             "WMI",   # SSH gives the same hardware-level data as WMI
 }
-ENDOFFILE
