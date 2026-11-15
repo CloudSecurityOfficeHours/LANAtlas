@@ -145,3 +145,38 @@ def delete_device(db: Connection, device_id: int) -> dict:
     before = get_device(db, device_id)
     db.execute(text("DELETE FROM devices WHERE id = :device_id"), {"device_id": device_id})
     return {"before": before, "after": None}
+ 
+ 
+def find_overdue(db: Connection, business_hours_only: bool = False) -> list[dict]:
+    """Return devices not seen within their missing_threshold_hours window.
+ 
+    If business_hours_only is True, only devices whose site is currently
+    inside its business hours and business days (in the site's own
+    timezone) are returned.
+    """
+    rows = db.execute(
+        text("""
+            SELECT d.id, d.organization_id, d.site_id, d.last_seen,
+                   d.missing_threshold_hours
+            FROM devices d
+            JOIN sites s ON s.id = d.site_id
+            WHERE s.is_active
+              AND d.last_seen IS NOT NULL
+              AND d.last_seen
+                  < NOW() - make_interval(hours => d.missing_threshold_hours)
+              AND (
+                  NOT :business_hours_only
+                  OR (
+                      EXTRACT(HOUR FROM NOW() AT TIME ZONE s.timezone)
+                          >= s.business_hours_start
+                      AND EXTRACT(HOUR FROM NOW() AT TIME ZONE s.timezone)
+                          < s.business_hours_end
+                      AND EXTRACT(ISODOW FROM NOW() AT TIME ZONE s.timezone)::text
+                          = ANY(string_to_array(s.business_days, ','))
+                  )
+              )
+        """),
+        {"business_hours_only": business_hours_only},
+    ).fetchall()
+    return [dict(row._mapping) for row in rows]
+ 
