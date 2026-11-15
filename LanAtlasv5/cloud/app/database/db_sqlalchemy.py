@@ -35,14 +35,19 @@ load_dotenv()
 # Configuration
 # ─────────────────────────────────────────
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+def _require_database_url() -> str:
+    """Reads DATABASE_URL from the environment and fails fast if it is missing."""
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        raise RuntimeError(
+            "DATABASE_URL environment variable is not set. "
+            "Add it to your .env file. "
+            "Expected format: postgresql://user:password@host:port/dbname"
+        )
+    return url
 
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL environment variable is not set. "
-        "Add it to your .env file. "
-        "Expected format: postgresql://user:password@host:port/dbname"
-    )
+
+DATABASE_URL: str = _require_database_url()
 
 # ─────────────────────────────────────────
 # Engine
