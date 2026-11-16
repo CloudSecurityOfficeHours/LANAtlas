@@ -10,6 +10,26 @@ Development happens in the open through **Cloud Security Office Hours** ([`Cloud
 
 ---
 
+
+## Project status
+
+> **Current phase:** Pre-Phase 1 — repo reorganization + security/CI hardening
+> **Last updated:** 2026-11-15
+
+We're finishing a cleanup pass before starting Phase 1 development. Until it's done, expect files to move around and some paths in the docs to be out of date.
+
+**In progress**
+-  Repo reorganization: consolidating `LanAtlasv5/`, `apps/`, and `structure-new/` into the final layout (see `docs/structure.txt`)
+-  CI fixes: getting `ci.yml` and Super Linter passing cleanly on `main`
+-  Security fixes: [e.g. hash `agent_token` (A08 gap), add `pip-audit --strict` to CI (A03)]
+
+**Next up: Phase 1**
+- [Phase 1 goal, e.g. "agent → cloud ingest path working end to end on a single site"]
+
+**Want to help?** Check issues labeled [`good first issue`] or [`phase-1`].
+
+---
+
 ## Security frameworks in active use
 
 Every control decision in this project is checked against at least one of:
