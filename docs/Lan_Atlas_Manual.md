@@ -1,7 +1,7 @@
 # LAN Atlas — Project & SRE Reference Manual
 
 > **Document ID:** `LAN-ATLAS-ROADMAP-v6.0` | **Release Date:** November 14, 2026 (Supersedes `v5.0` released November 12, 2026)  
-> **Lead Architect:** Kyle Ingersoll (`@Computer8543`) | **Contributors:** 6 Active CSOH Engineers (`@Computer8543`, `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12`, `@nicholasC03`, `@neilcar`)  
+> **Lead Architect:** Cynthia Ingersoll (`@Computer8543`)  
 > **Repository:** [`CloudSecurityOfficeHours/LANAtlas`](https://github.com/CloudSecurityOfficeHours/LANAtlas)
 
 ---
