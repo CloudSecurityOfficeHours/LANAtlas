@@ -117,7 +117,7 @@ def calculate_identity_strength(signal_types: list[str]) -> int:
         return 0
 
     unique_types = sorted(set(signal_types), key=lambda s: SIGNAL_WEIGHTS.get(s, 0), reverse=True)
-    strength = SIGNAL_WEIGHTS.get(unique_types[0], 0)
+    strength: float = SIGNAL_WEIGHTS.get(unique_types[0], 0)
     for signal_type in unique_types[1:]:
         strength += SIGNAL_WEIGHTS.get(signal_type, 0) * 0.5
 
@@ -271,11 +271,16 @@ def resolve_observation(db, observation: dict) -> dict:
     match_method = "+".join(best_method) if best_method else "NONE"
 
     # HIGH confidence + hardware anchor in the incoming observation -> auto-link
-    if best_score >= CONFIDENCE_THRESHOLDS["HIGH"] and incoming_has_anchor:
-        observation_repo.link(db, observation["id"], best_match["device_id"], best_score, match_method)
-        update_signals(db, best_match["device_id"], observation, incoming_signals)
+    if (
+        best_match is not None
+        and best_score >= CONFIDENCE_THRESHOLDS["HIGH"]
+        and incoming_has_anchor
+    ):
+        device_id = best_match["device_id"]
+        observation_repo.link(db, observation["id"], device_id, best_score, match_method)
+        update_signals(db, device_id, observation, incoming_signals)
         return {
-            "device_id":        best_match["device_id"],
+            "device_id":        device_id,
             "match_confidence": best_score,
             "match_method":     match_method,
             "action":           "linked",

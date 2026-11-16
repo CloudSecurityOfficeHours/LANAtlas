@@ -70,6 +70,13 @@ def insert_device(
 
     # ON CONFLICT fired — the device already exists. Fetch its id.
     existing = fetch_by_fingerprint(db, organization_id, site_id, fingerprint_hash)
+    
+    if existing is None:
+        raise RuntimeError(
+            "Device insert conflicted on fingerprint, but no existing row was found "
+            f"(organization_id={organization_id}, site_id={site_id})."
+        )
+    
     return existing["id"]
 
 
