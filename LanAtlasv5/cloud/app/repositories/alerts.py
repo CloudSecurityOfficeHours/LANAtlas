@@ -1,4 +1,3 @@
-
 """
 repositories/alerts.py
  
@@ -41,11 +40,19 @@ def create(
     observation_id: int | None = None,
     severity: str | None = None,
     metadata: str | None = None,
-) -> int:
+) -> int | None:
     """Insert an open alert and return its id.
  
     If severity is None, the alert_type's default_severity is used.
+    Severity is normalized to lowercase to satisfy ck_alerts_severity.
+ 
+    Idempotent per device: if the device already has an unresolved alert of
+    this type (enforced by the uq_alerts_open_device_type partial unique
+    index), nothing is inserted and None is returned. This is atomic, so
+    overlapping worker runs cannot create duplicate open alerts.
     """
+    if severity is not None:
+        severity = severity.lower()
     row = db.execute(
         text("""
             INSERT INTO alerts (
@@ -58,6 +65,9 @@ def create(
                 :alert_message
             FROM alert_type t
             WHERE t.alert_type_name = :alert_type_name
+            ON CONFLICT (device_id, alert_type_id)
+                WHERE resolved_at IS NULL AND device_id IS NOT NULL
+                DO NOTHING
             RETURNING id
         """),
         {
@@ -71,7 +81,15 @@ def create(
             "alert_message": alert_message,
         },
     ).fetchone()
-    if row is None:
-        raise ValueError(f"Unknown alert type: {alert_type_name!r}")
-    return int(row[0])
+    if row is not None:
+        return int(row[0])
  
+    # No row back: either the alert type doesn't exist, or an open alert
+    # for this device/type already exists (ON CONFLICT DO NOTHING).
+    type_exists = db.execute(
+        text("SELECT 1 FROM alert_type WHERE alert_type_name = :alert_type_name"),
+        {"alert_type_name": alert_type_name},
+    ).fetchone()
+    if type_exists is None:
+        raise ValueError(f"Unknown alert type: {alert_type_name!r}")
+    return None
