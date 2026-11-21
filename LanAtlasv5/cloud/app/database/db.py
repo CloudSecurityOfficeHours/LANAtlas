@@ -6,7 +6,7 @@ Version: 2.0
 Description: PostgreSQL connection factory for LAN Atlas using SQLAlchemy Core.
 
 All engine code obtains connections through get_db().
-To switch databases, change DATABASE_URL in .env only.
+Configure the PostgreSQL connection using DATABASE_URL in .env.
 
 Usage (production):
     with get_db() as db:
