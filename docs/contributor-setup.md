@@ -9,7 +9,7 @@ Before you begin, make sure you have:
 - Git installed
 - Python 3 installed
 - Access to this repository
-
+- A PostgreSQL server and database for cloud development
 You can check your Python version with:
 
 ```bash
@@ -104,8 +104,8 @@ APP_HOST=127.0.0.1
 APP_PORT=8000
 SECRET_KEY=change-me
 
-# Database
-DATABASE_URL=sqlite:///./lan_atlas.db
+# Cloud database (SQLAlchemy + PostgreSQL; replace the example credentials)
+DATABASE_URL=postgresql+psycopg2://lanatlas:change-me@localhost:5432/lanatlas
 
 # Agent / API auth
 AGENT_SHARED_SECRET=change-me
@@ -133,6 +133,16 @@ SCAN_MAX_HOSTS=1024
 # Dashboard / frontend
 DASHBOARD_ORIGIN=http://localhost:3000
 ```
+
+The cloud app connects to PostgreSQL through
+`LanAtlasv5/cloud/app/database/db.py`. Update `DATABASE_URL` in your local
+`.env` file with your database details. The values above are examples.
+
+The PostgreSQL driver, `psycopg2-binary`, is listed in
+`docs/requirements.txt`. Use a separate database for tests so they do not
+affect your development data.
+
+The agent still uses SQLite to store observations locally.
 
 ## 6. Keep secrets out of Git
 
