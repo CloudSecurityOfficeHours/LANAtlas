@@ -135,7 +135,7 @@ Development happens in the open through **Cloud Security Office Hours** ([`Cloud
 |---|---|
 | **Document ID** | `LAN-ATLAS-ROADMAP-v6.0` |
 | **Lead Architect** | Kyle Ingersoll (`@Computer8543`) |
-| **Contributors** | 6 Active CSOH Engineers (`@Computer8543`, `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12`, `@nicholasC03`, `@neilcar`) |
+| **Contributors** | 7 Active CSOH Engineers (`@Computer8543`, `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12`, `@nicholasC03`, `@neilcar`, `@princeman2`) |
 | **Release Date** | November 14, 2026 (Supersedes `v5.0` released November 12, 2026) |
 
 ### 1.2 Gate 0 Carrying-Cost Audit (4.2 < 15.0) & $0.00/mo Ceiling
