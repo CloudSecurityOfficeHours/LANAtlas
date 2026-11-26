@@ -527,7 +527,7 @@ Per `LAN Atlas — High-Level Design Document (v2.0: Schema to PostgreSQL)`, six
 
 ### 3.4 Three-Zone Architecture & CLASP Trust Boundaries (OWASP Top 10:2025)
 
-Aligned to [OWASP Secure Cloud Architecture Cheat Sheet — Trust Boundaries](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html%2523trust-boundaries), CLASP trust boundaries, and OWASP Top 10:2025, LAN Atlas partitions execution into three distinct trust zones separated by explicit cryptographic and authorization boundaries:
+Aligned to [OWASP Secure Cloud Architecture Cheat Sheet — Trust Boundaries](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html#trust-boundaries), CLASP trust boundaries, and OWASP Top 10:2025, LAN Atlas partitions execution into three distinct trust zones separated by explicit cryptographic and authorization boundaries:
 
 ```mermaid
 flowchart TB
