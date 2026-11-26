@@ -1532,7 +1532,7 @@ Continuous Threat Exposure Management (CTEM) links all 26 Threat Register gates 
 
 ## 7. Contributing, Local Setup & Quality Gates
 
-See [Contributor Setup](docs/contributor-setup.md) for local environment and `.env` instructions, and `AGENTS.md` / `GEMINI.md` for AI agent bounded-context conventions. Branch naming, PR templates, and commit message conventions (Conventional Commits) are defined in `CONTRIBUTING.md`.
+See [Contributor Setup](contributor-setup.md) for local environment and `.env` instructions, and `AGENTS.md` / `GEMINI.md` for AI agent bounded-context conventions. Branch naming, PR templates, and commit message conventions (Conventional Commits) are defined in `CONTRIBUTING.md`.
 
 ### 7.1 Local Environment Setup
 
