@@ -1,119 +1,121 @@
 # LAN Atlas — Project & SRE Reference Manual
 
 > **Document ID:** `LAN-ATLAS-ROADMAP-v6.0` | **Release Date:** November 14, 2026 (Supersedes `v5.0` released November 12, 2026)  
-> **Lead Architect:** Kyle Ingersoll (`@Computer8543`) | **Contributors:** 6 Active CSOH Engineers (`@Computer8543`, `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12`, `@nicholasC03`, `@neilcar`)  
+> **Lead Architect:** Cynthia Ingersoll (`@Computer8543`)  
 > **Repository:** [`CloudSecurityOfficeHours/LANAtlas`](https://github.com/CloudSecurityOfficeHours/LANAtlas)
 
 ---
 
 ## Table of Contents
 
-- [1. Project Overview & Executive Governance Baseline](#1-project-overview--executive-governance-baseline)
-  - [1.1 Document Metadata & Governance Roster](#11-document-metadata--governance-roster)
-  - [1.2 Gate 0 Carrying-Cost Audit (4.2 < 15.0) & $0.00/mo Ceiling](#12-gate-0-carrying-cost-audit-42--150--000mo-ceiling)
-  - [1.3 Live Repository & GitHub Board Delta Synthesis (Nov 14, 2026)](#13-live-repository--github-board-delta-synthesis-nov-14-2026)
-- [2. Security Frameworks & Threat Register](#2-security-frameworks--threat-register)
-  - [2.1 Security Frameworks in Active Use](#21-security-frameworks-in-active-use)
-  - [2.2 Current Security Posture (`README.md` & v6.0 Reconciled Baseline)](#22-current-security-posture-readmemd--v60-reconciled-baseline)
-  - [2.3 Authentication Architecture: Three Distinct Trust Mechanisms](#23-authentication-architecture-three-distinct-trust-mechanisms)
-    - [Mechanism Comparison](#mechanism-comparison)
-    - [Agent-to-Cloud API Surface](#agent-to-cloud-api-surface)
-    - [Dashboard User Surface](#dashboard-user-surface)
-    - [Why No Password, Ever](#why-no-password-ever)
-    - [Auth Control Status](#auth-control-status)
-  - [2.4 OWASP Controls Mapping v3.0 Summary](#24-owasp-controls-mapping-v30-summary)
-    - [OWASP Top 10 (2025) — Web Dashboard](#owasp-top-10-2025--web-dashboard)
-    - [OWASP API Security Top 10 (2023) — Agent-to-Cloud API](#owasp-api-security-top-10-2023--agent-to-cloud-api)
-    - [Infrastructure Security Controls (v3.0 Section 6)](#infrastructure-security-controls-v30-section-6)
-    - [Open Gaps & Recommendations (v3.0 Section 7)](#open-gaps--recommendations-v30-section-7)
-  - [2.5 Extended Controls Under Consideration](#25-extended-controls-under-consideration)
-    - [1. Secret Management — OWASP ASVS 5.0 V13.3](#1-secret-management--owasp-asvs-50-v133)
-    - [2. Improper Inventory Management — OWASP API Security Top 10 API9:2023](#2-improper-inventory-management--owasp-api-security-top-10-api92023)
-    - [3. Audit Log Management — CIS Controls v8.1 Control 8](#3-audit-log-management--cis-controls-v81-control-8)
-    - [4. Application Software Security — CIS Controls v8.1 Control 16](#4-application-software-security--cis-controls-v81-control-16)
-    - [5. Secure Configuration of Enterprise Assets and Software — CIS Controls v8.1 Control 4](#5-secure-configuration-of-enterprise-assets-and-software--cis-controls-v81-control-4)
-  - [2.6 Threat Register & 1:1 Security Control Reconciliation (TR-01–TR-26)](#26-threat-register--11-security-control-reconciliation-tr-01tr-26)
-- [3. Functional & Non-Functional Requirements & System Architecture](#3-functional--non-functional-requirements--system-architecture)
-  - [3.1 Functional Requirements](#31-functional-requirements)
-  - [3.2 Non-Functional Requirements](#32-non-functional-requirements)
-    - [HLD v2.0 NFR Targets Reconciled with v6.0 Baseline](#hld-v20-nfr-targets-reconciled-with-v60-baseline)
-  - [3.3 HLD v2.0 Design Principles](#33-hld-v20-design-principles)
-  - [3.4 Three-Zone Architecture & CLASP Trust Boundaries (OWASP Top 10:2025)](#34-three-zone-architecture--clasp-trust-boundaries-owasp-top-102025)
-  - [3.5 Agent-to-Dashboard Data Flow (9-Step Pipeline)](#35-agent-to-dashboard-data-flow-9-step-pipeline)
-  - [3.6 Five-Layer Hardened Architecture (LanAtlasv5/)](#36-five-layer-hardened-architecture-lanatlasv5)
-  - [3.7 Substrate-First Isolation & Operational Verisimilitude (Gates 5–7)](#37-substrate-first-isolation--operational-verisimilitude-gates-57)
-  - [3.8 Subsystem Evolution & Comparison Matrix (v1.0 -> v3.0/v4.0 -> v5.0 -> v6.0)](#38-subsystem-evolution--comparison-matrix-v10---v30v40---v50---v60)
-- [4. Technology Stack, Repository Structure & Database Schema](#4-technology-stack-repository-structure--database-schema)
-  - [4.1 Technology Stack (README.md Baseline vs. v6.0 Pinned Python 3.12 Stack)](#41-technology-stack-readmemd-baseline-vs-v60-pinned-python-312-stack)
-  - [4.2 Canonical LanAtlasv5/ Directory Layout](#42-canonical-lanatlasv5-directory-layout)
-  - [4.3 Database Schema, Dual-Role Isolation & Audit Chain](#43-database-schema-dual-role-isolation--audit-chain)
-    - [LLD v2.0 Summary Metrics & Migration Summary (SQLite v1.3 -> PostgreSQL v2.0)](#lld-v20-summary-metrics--migration-summary-sqlite-v13---postgresql-v20)
-    - [Core Design Principles (schema-reference-v5.md)](#core-design-principles-schema-reference-v5md)
-    - [Dual-Role PostgreSQL 16 Split & FORCE ROW LEVEL SECURITY](#dual-role-postgresql-16-split--force-row-level-security)
-    - [audit_log Hash-Chain Immutability](#audit_log-hash-chain-immutability)
-    - [Entity Relationship Overview (LLD Groups 1–6)](#entity-relationship-overview-lld-groups-16)
-    - [Per-Table Schema & Named Constraint Reference (15 LLD Tables + v6.0 Additions)](#per-table-schema--named-constraint-reference-15-lld-tables--v60-additions)
-    - [Complete Index Reference (LLD Section 5)](#complete-index-reference-lld-section-5)
-    - [Trigger Reference (LLD Section 6 & v6.0 Audit Triggers)](#trigger-reference-lld-section-6--v60-audit-triggers)
-    - [Post-MVP Schema Roadmap (LLD Section 7)](#post-mvp-schema-roadmap-lld-section-7)
-- [5. Agile Roadmap: Initiatives, Epics & Decomposed User Stories](#5-agile-roadmap-initiatives-epics--decomposed-user-stories)
-  - [Initiative 1: Sprint 0 Stabilization & Repository De-Confliction (72-Hour Gate)](#initiative-1-sprint-0-stabilization--repository-de-confliction-72-hour-gate)
-    - [Epic 1.1 (Sprint 0): Environment, Structure & Schema Stabilization](#epic-11-sprint-0-environment-structure--schema-stabilization)
-      - [US-1.1 — Fix Codespaces, PyPI Manifests & Git Hygiene](#us-11--fix-codespaces-pypi-manifests--git-hygiene)
-      - [US-1.2 — Canonical LanAtlasv5 Structure & AST Layer Linter](#us-12--canonical-lanatlasv5-structure--ast-layer-linter)
-      - [US-1.3 — Topological 17-Table DDL & Dual-Role PG 16 Setup](#us-13--topological-17-table-ddl--dual-role-pg-16-setup)
-  - [Initiative 2: Core Multi-Tenant Platform & Network Discovery (Sprints 1–3, Weeks 1–6)](#initiative-2-core-multi-tenant-platform--network-discovery-sprints-13-weeks-16)
-    - [Epic 2.1 (Sprint 1, Weeks 1–2): Local LAN Scanner, RFC 1918 Guardrails & SQLite WAL Spool](#epic-21-sprint-1-weeks-12-local-lan-scanner-rfc-1918-guardrails--sqlite-wal-spool)
-      - [US-2.1 — Async L2/TCP Subnet Scanner & RFC 1918 Ceiling](#us-21--async-l2tcp-subnet-scanner--rfc-1918-ceiling)
-      - [US-2.2 — Agent Local SQLite WAL State Store](#us-22--agent-local-sqlite-wal-state-store)
-      - [US-2.3 — Local Inspection CLI & Protocol v1 Wire Schemas](#us-23--local-inspection-cli--protocol-v1-wire-schemas)
-    - [Epic 2.2 (Sprint 2, Weeks 3–4): PostgreSQL 16 Multi-Tenant RLS, Identity Engine & Token Table](#epic-22-sprint-2-weeks-34-postgresql-16-multi-tenant-rls-identity-engine--token-table)
-      - [US-3.1 — Multi-Tenant PG 16 Pool, TCP Keepalives & Mandatory RLS](#us-31--multi-tenant-pg-16-pool-tcp-keepalives--mandatory-rls)
-      - [US-3.2 — Weighted Identity & Deduplication Engine Hardening](#us-32--weighted-identity--deduplication-engine-hardening)
-      - [US-3.3 — Argon2id Login, RBAC Middleware & OWASP Mapping](#us-33--argon2id-login-rbac-middleware--owasp-mapping)
-      - [US-3.4 — Site Creation & Concurrent Enrollment Token Table](#us-34--site-creation--concurrent-enrollment-token-table)
-    - [Epic 2.3 (Sprint 3, Weeks 5–6): Ed25519 Enrollment, State-Delta Ingestion & Zero-NAT AWS Deploy](#epic-23-sprint-3-weeks-56-ed25519-enrollment-state-delta-ingestion--zero-nat-aws-deploy)
-      - [US-4.1 — Ed25519 Agent Enrollment & Signed Observation Ingestion](#us-41--ed25519-agent-enrollment--signed-observation-ingestion)
-      - [US-4.2 — State-Delta Persistence & Hourly Compaction](#us-42--state-delta-persistence--hourly-compaction)
-      - [US-4.3 — Per-Site Inventory Dashboard Views](#us-43--per-site-inventory-dashboard-views)
-      - [US-4.4 — Zero-NAT-Gateway AWS Free Tier Deployment](#us-44--zero-nat-gateway-aws-free-tier-deployment)
-  - [Initiative 3: Production SRE, Asymmetric 3-2-1 DR, CIS/SOC-2 Compliance & Operational Verisimilitude (Sprints 4–6, Weeks 7–12)](#initiative-3-production-sre-asymmetric-3-2-1-dr-cissoc-2-compliance--operational-verisimilitude-sprints-46-weeks-712)
-    - [Epic 3.1 (Sprint 4, Weeks 7–8): Out-of-Band Watchdog, Coalesced Alerting & CIS Controls v8 Mapping](#epic-31-sprint-4-weeks-78-out-of-band-watchdog-coalesced-alerting--cis-controls-v8-mapping)
-      - [US-5.1 — Signed Agent Heartbeats, 2s Lock Supervisor & 30s Watchdog](#us-51--signed-agent-heartbeats-2s-lock-supervisor--30s-watchdog)
-      - [US-5.2 — Topology-Aware Alert Rules Engine](#us-52--topology-aware-alert-rules-engine)
-      - [US-5.3 — Alerts Triage UI, 60s SES Digests & Scoped CIS v8 Mapping](#us-53--alerts-triage-ui-60s-ses-digests--scoped-cis-v8-mapping)
-    - [Epic 3.2 (Sprint 5, Weeks 9–10): Decoupled AI Eval Engine, Trigger-Immutable SOC 2 Audit Log & Edge Resilience](#epic-32-sprint-5-weeks-910-decoupled-ai-eval-engine-trigger-immutable-soc-2-audit-log--edge-resilience)
-      - [US-6.1 — Monkey-Patch-Immune Decoupled AI Invariant Suite](#us-61--monkey-patch-immune-decoupled-ai-invariant-suite)
-      - [US-6.2 — Trigger-Immutable SOC 2 Audit Log & Serialized Hash Chain](#us-62--trigger-immutable-soc-2-audit-log--serialized-hash-chain)
-      - [US-6.3 — SQLite WAL 500-Batch FIFO Ring Buffer & Decorrelated Jitter Retry](#us-63--sqlite-wal-500-batch-fifo-ring-buffer--decorrelated-jitter-retry)
-      - [US-6.4 — Two-Tier Authenticated Rate Limiter](#us-64--two-tier-authenticated-rate-limiter)
-      - [US-6.5 — Wire Schema Versioning, Banner/Hostname XSS Sanitization & 30-Day Pruning](#us-65--wire-schema-versioning-bannerhostname-xss-sanitization--30-day-pruning)
-    - [Epic 3.3 (Sprint 6, Weeks 11–12): 99.5% Burn-Rate SLOs, Chaos Game Day, Asymmetric 3-2-1 R2 DR & Gates 5–7](#epic-33-sprint-6-weeks-1112-995-burn-rate-slos-chaos-game-day-asymmetric-3-2-1-r2-dr--gates-57)
-      - [US-7.1 — Outbound Prometheus Remote-Write & 99.5% Burn-Rate SLO Dashboard](#us-71--outbound-prometheus-remote-write--995-burn-rate-slo-dashboard)
-      - [US-7.2 — SRE Chaos Game Day (scripts/chaos-agent-kill.sh) & Immutable Rollback](#us-72--sre-chaos-game-day-scriptschaos-agent-killsh--immutable-rollback)
-      - [US-7.3 — Asymmetric GPG Streaming 3-2-1 Backup & R2 Object Lock DR Drill](#us-73--asymmetric-gpg-streaming-3-2-1-backup--r2-object-lock-dr-drill)
-      - [US-7.4 — Streaming CSV/JSON Exports, CloudWatch Retention & Portfolio Fuzzing](#us-74--streaming-csvjson-exports-cloudwatch-retention--portfolio-fuzzing)
-      - [US-7.5 — Operational Verisimilitude Gates 5–7 & POSIX CoW risk-ledger.jsonl](#us-75--operational-verisimilitude-gates-57--posix-cow-risk-ledgerjsonl)
-    - [Epic 3.4 (Sprint 6 Validation & Release, GitHub #54–#64, #84, #87) — Full-Stack Validation & Release Governance](#epic-34-sprint-6-validation--release-github-5464-84-87--full-stack-validation--release-governance)
-      - [US-8.1 — Detection, Upsert, Deduplication & Timestamp Validation Suite](#us-81--detection-upsert-deduplication--timestamp-validation-suite)
-      - [US-8.2 — Failure Scenarios, Scan Benchmarks, Release Cadence & HLD/LLD Sync](#us-82--failure-scenarios-scan-benchmarks-release-cadence--hldlld-sync)
-- [6. Carrying Cost Budget, FinOps & Succession Governance](#6-carrying-cost-budget-finops--succession-governance)
-  - [6.1 Unified Budget & Free-Tier Resource Allocation](#61-unified-budget--free-tier-resource-allocation)
-  - [6.2 Bi-Weekly Sprint Cadence & WIP=1 Cap](#62-bi-weekly-sprint-cadence--wip1-cap)
-  - [6.3 Physical Break-Glass Sovereignty](#63-physical-break-glass-sovereignty)
-  - [6.4 Closed-Loop CTEM Integration](#64-closed-loop-ctem-integration)
-- [7. Contributing, Local Setup & Quality Gates](#7-contributing-local-setup--quality-gates)
-  - [7.1 Local Environment Setup](#71-local-environment-setup)
-  - [7.2 Codespaces & Devcontainer Alignment](#72-codespaces--devcontainer-alignment)
-  - [7.3 CI/CD Pipeline Architecture & Quality Gates](#73-cicd-pipeline-architecture--quality-gates)
-  - [7.4 Tool Glossary & Responsibilities](#74-tool-glossary--responsibilities)
-  - [7.5 Security Framework Alignment (OWASP SAMM v2.0 & NIST SP 800-218 SSDF)](#75-security-framework-alignment-owasp-samm-v20--nist-sp-800-218-ssdf)
-  - [7.6 Rollout Strategy, Suggested Build Order & Common Mistakes to Avoid](#76-rollout-strategy-suggested-build-order--common-mistakes-to-avoid)
-    - [Gate vs. Advisory Rollout Strategy](#gate-vs-advisory-rollout-strategy)
-    - [Suggested Build Order](#suggested-build-order)
-    - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
-  - [7.7 Verification Harness (verify_lan_atlas_v5.py)](#77-verification-harness-verify_lan_atlas_v5py)
-  - [7.8 .eval/invariants/ Isolation & Tier 0 GPG Diff Guard](#78-evalinvariants-isolation--tier-0-gpg-diff-guard)
+- [LAN Atlas — Project \& SRE Reference Manual](#lan-atlas--project--sre-reference-manual)
+  - [Table of Contents](#table-of-contents)
+  - [1. Project Overview \& Executive Governance Baseline](#1-project-overview--executive-governance-baseline)
+    - [1.1 Document Metadata \& Governance Roster](#11-document-metadata--governance-roster)
+    - [1.2 Gate 0 Carrying-Cost Audit (4.2 \< 15.0) \& $0.00/mo Ceiling](#12-gate-0-carrying-cost-audit-42--150--000mo-ceiling)
+    - [1.3 Live Repository \& GitHub Board Delta Synthesis (Nov 14, 2026)](#13-live-repository--github-board-delta-synthesis-nov-14-2026)
+  - [2. Security Frameworks \& Threat Register](#2-security-frameworks--threat-register)
+    - [2.1 Security Frameworks in Active Use](#21-security-frameworks-in-active-use)
+    - [2.2 Current Security Posture (`README.md` \& v6.0 Reconciled Baseline)](#22-current-security-posture-readmemd--v60-reconciled-baseline)
+    - [2.3 Authentication Architecture: Three Distinct Trust Mechanisms](#23-authentication-architecture-three-distinct-trust-mechanisms)
+      - [Mechanism Comparison](#mechanism-comparison)
+      - [Agent-to-Cloud API Surface](#agent-to-cloud-api-surface)
+      - [Dashboard User Surface](#dashboard-user-surface)
+      - [Why No Password, Ever](#why-no-password-ever)
+      - [Auth Control Status](#auth-control-status)
+    - [2.4 OWASP Controls Mapping v3.0 Summary](#24-owasp-controls-mapping-v30-summary)
+      - [OWASP Top 10 (2025) — Web Dashboard](#owasp-top-10-2025--web-dashboard)
+      - [OWASP API Security Top 10 (2023) — Agent-to-Cloud API](#owasp-api-security-top-10-2023--agent-to-cloud-api)
+      - [Infrastructure Security Controls (v3.0 Section 6)](#infrastructure-security-controls-v30-section-6)
+      - [Open Gaps \& Recommendations (v3.0 Section 7)](#open-gaps--recommendations-v30-section-7)
+    - [2.5 Extended Controls Under Consideration](#25-extended-controls-under-consideration)
+      - [1. Secret Management — OWASP ASVS 5.0 V13.3](#1-secret-management--owasp-asvs-50-v133)
+      - [2. Improper Inventory Management — OWASP API Security Top 10 API9:2023](#2-improper-inventory-management--owasp-api-security-top-10-api92023)
+      - [3. Audit Log Management — CIS Controls v8.1 Control 8](#3-audit-log-management--cis-controls-v81-control-8)
+      - [4. Application Software Security — CIS Controls v8.1 Control 16](#4-application-software-security--cis-controls-v81-control-16)
+      - [5. Secure Configuration of Enterprise Assets and Software — CIS Controls v8.1 Control 4](#5-secure-configuration-of-enterprise-assets-and-software--cis-controls-v81-control-4)
+    - [2.6 Threat Register \& 1:1 Security Control Reconciliation (TR-01–TR-26)](#26-threat-register--11-security-control-reconciliation-tr-01tr-26)
+  - [3. Functional \& Non-Functional Requirements \& System Architecture](#3-functional--non-functional-requirements--system-architecture)
+    - [3.1 Functional Requirements](#31-functional-requirements)
+    - [3.2 Non-Functional Requirements](#32-non-functional-requirements)
+      - [HLD v2.0 NFR Targets Reconciled with v6.0 Baseline](#hld-v20-nfr-targets-reconciled-with-v60-baseline)
+    - [3.3 HLD v2.0 Design Principles](#33-hld-v20-design-principles)
+    - [3.4 Three-Zone Architecture \& CLASP Trust Boundaries (OWASP Top 10:2025)](#34-three-zone-architecture--clasp-trust-boundaries-owasp-top-102025)
+    - [3.5 Agent-to-Dashboard Data Flow (9-Step Pipeline)](#35-agent-to-dashboard-data-flow-9-step-pipeline)
+    - [3.6 Five-Layer Hardened Architecture (LanAtlasv5/)](#36-five-layer-hardened-architecture-lanatlasv5)
+    - [3.7 Substrate-First Isolation \& Operational Verisimilitude (Gates 5–7)](#37-substrate-first-isolation--operational-verisimilitude-gates-57)
+    - [3.8 Subsystem Evolution \& Comparison Matrix (v1.0 -\> v3.0/v4.0 -\> v5.0 -\> v6.0)](#38-subsystem-evolution--comparison-matrix-v10---v30v40---v50---v60)
+  - [4. Technology Stack, Repository Structure \& Database Schema](#4-technology-stack-repository-structure--database-schema)
+    - [4.1 Technology Stack (README.md Baseline vs. v6.0 Pinned Python 3.12 Stack)](#41-technology-stack-readmemd-baseline-vs-v60-pinned-python-312-stack)
+    - [4.2 Canonical LanAtlasv5/ Directory Layout](#42-canonical-lanatlasv5-directory-layout)
+    - [4.3 Database Schema, Dual-Role Isolation \& Audit Chain](#43-database-schema-dual-role-isolation--audit-chain)
+      - [LLD v2.0 Summary Metrics \& Migration Summary (SQLite v1.3 -\> PostgreSQL v2.0)](#lld-v20-summary-metrics--migration-summary-sqlite-v13---postgresql-v20)
+      - [Core Design Principles (schema-reference-v5.md)](#core-design-principles-schema-reference-v5md)
+      - [Dual-Role PostgreSQL 16 Split \& FORCE ROW LEVEL SECURITY](#dual-role-postgresql-16-split--force-row-level-security)
+      - [audit\_log Hash-Chain Immutability](#audit_log-hash-chain-immutability)
+      - [Entity Relationship Overview (LLD Groups 1–6)](#entity-relationship-overview-lld-groups-16)
+      - [Per-Table Schema \& Named Constraint Reference (15 LLD Tables + v6.0 Additions)](#per-table-schema--named-constraint-reference-15-lld-tables--v60-additions)
+      - [Complete Index Reference (LLD Section 5)](#complete-index-reference-lld-section-5)
+      - [Trigger Reference (LLD Section 6 \& v6.0 Audit Triggers)](#trigger-reference-lld-section-6--v60-audit-triggers)
+      - [Post-MVP Schema Roadmap (LLD Section 7)](#post-mvp-schema-roadmap-lld-section-7)
+  - [5. Agile Roadmap: Initiatives, Epics \& Decomposed User Stories](#5-agile-roadmap-initiatives-epics--decomposed-user-stories)
+    - [Initiative 1: Sprint 0 Stabilization \& Repository De-Confliction (72-Hour Gate)](#initiative-1-sprint-0-stabilization--repository-de-confliction-72-hour-gate)
+      - [Epic 1.1 (Sprint 0): Environment, Structure \& Schema Stabilization](#epic-11-sprint-0-environment-structure--schema-stabilization)
+        - [US-1.1 — Fix Codespaces, PyPI Manifests \& Git Hygiene](#us-11--fix-codespaces-pypi-manifests--git-hygiene)
+        - [US-1.2 — Canonical LanAtlasv5 Structure \& AST Layer Linter](#us-12--canonical-lanatlasv5-structure--ast-layer-linter)
+        - [US-1.3 — Topological 17-Table DDL \& Dual-Role PG 16 Setup](#us-13--topological-17-table-ddl--dual-role-pg-16-setup)
+    - [Initiative 2: Core Multi-Tenant Platform \& Network Discovery (Sprints 1–3, Weeks 1–6)](#initiative-2-core-multi-tenant-platform--network-discovery-sprints-13-weeks-16)
+      - [Epic 2.1 (Sprint 1, Weeks 1–2): Local LAN Scanner, RFC 1918 Guardrails \& SQLite WAL Spool](#epic-21-sprint-1-weeks-12-local-lan-scanner-rfc-1918-guardrails--sqlite-wal-spool)
+        - [US-2.1 — Async L2/TCP Subnet Scanner \& RFC 1918 Ceiling](#us-21--async-l2tcp-subnet-scanner--rfc-1918-ceiling)
+        - [US-2.2 — Agent Local SQLite WAL State Store](#us-22--agent-local-sqlite-wal-state-store)
+        - [US-2.3 — Local Inspection CLI \& Protocol v1 Wire Schemas](#us-23--local-inspection-cli--protocol-v1-wire-schemas)
+      - [Epic 2.2 (Sprint 2, Weeks 3–4): PostgreSQL 16 Multi-Tenant RLS, Identity Engine \& Token Table](#epic-22-sprint-2-weeks-34-postgresql-16-multi-tenant-rls-identity-engine--token-table)
+        - [US-3.1 — Multi-Tenant PG 16 Pool, TCP Keepalives \& Mandatory RLS](#us-31--multi-tenant-pg-16-pool-tcp-keepalives--mandatory-rls)
+        - [US-3.2 — Weighted Identity \& Deduplication Engine Hardening](#us-32--weighted-identity--deduplication-engine-hardening)
+        - [US-3.3 — Argon2id Login, RBAC Middleware \& OWASP Mapping](#us-33--argon2id-login-rbac-middleware--owasp-mapping)
+        - [US-3.4 — Site Creation \& Concurrent Enrollment Token Table](#us-34--site-creation--concurrent-enrollment-token-table)
+      - [Epic 2.3 (Sprint 3, Weeks 5–6): Ed25519 Enrollment, State-Delta Ingestion \& Zero-NAT AWS Deploy](#epic-23-sprint-3-weeks-56-ed25519-enrollment-state-delta-ingestion--zero-nat-aws-deploy)
+        - [US-4.1 — Ed25519 Agent Enrollment \& Signed Observation Ingestion](#us-41--ed25519-agent-enrollment--signed-observation-ingestion)
+        - [US-4.2 — State-Delta Persistence \& Hourly Compaction](#us-42--state-delta-persistence--hourly-compaction)
+        - [US-4.3 — Per-Site Inventory Dashboard Views](#us-43--per-site-inventory-dashboard-views)
+        - [US-4.4 — Zero-NAT-Gateway AWS Free Tier Deployment](#us-44--zero-nat-gateway-aws-free-tier-deployment)
+    - [Initiative 3: Production SRE, Asymmetric 3-2-1 DR, CIS/SOC-2 Compliance \& Operational Verisimilitude (Sprints 4–6, Weeks 7–12)](#initiative-3-production-sre-asymmetric-3-2-1-dr-cissoc-2-compliance--operational-verisimilitude-sprints-46-weeks-712)
+      - [Epic 3.1 (Sprint 4, Weeks 7–8): Out-of-Band Watchdog, Coalesced Alerting \& CIS Controls v8 Mapping](#epic-31-sprint-4-weeks-78-out-of-band-watchdog-coalesced-alerting--cis-controls-v8-mapping)
+        - [US-5.1 — Signed Agent Heartbeats, 2s Lock Supervisor \& 30s Watchdog](#us-51--signed-agent-heartbeats-2s-lock-supervisor--30s-watchdog)
+        - [US-5.2 — Topology-Aware Alert Rules Engine](#us-52--topology-aware-alert-rules-engine)
+        - [US-5.3 — Alerts Triage UI, 60s SES Digests \& Scoped CIS v8 Mapping](#us-53--alerts-triage-ui-60s-ses-digests--scoped-cis-v8-mapping)
+      - [Epic 3.2 (Sprint 5, Weeks 9–10): Decoupled AI Eval Engine, Trigger-Immutable SOC 2 Audit Log \& Edge Resilience](#epic-32-sprint-5-weeks-910-decoupled-ai-eval-engine-trigger-immutable-soc-2-audit-log--edge-resilience)
+        - [US-6.1 — Monkey-Patch-Immune Decoupled AI Invariant Suite](#us-61--monkey-patch-immune-decoupled-ai-invariant-suite)
+        - [US-6.2 — Trigger-Immutable SOC 2 Audit Log \& Serialized Hash Chain](#us-62--trigger-immutable-soc-2-audit-log--serialized-hash-chain)
+        - [US-6.3 — SQLite WAL 500-Batch FIFO Ring Buffer \& Decorrelated Jitter Retry](#us-63--sqlite-wal-500-batch-fifo-ring-buffer--decorrelated-jitter-retry)
+        - [US-6.4 — Two-Tier Authenticated Rate Limiter](#us-64--two-tier-authenticated-rate-limiter)
+        - [US-6.5 — Wire Schema Versioning, Banner/Hostname XSS Sanitization \& 30-Day Pruning](#us-65--wire-schema-versioning-bannerhostname-xss-sanitization--30-day-pruning)
+      - [Epic 3.3 (Sprint 6, Weeks 11–12): 99.5% Burn-Rate SLOs, Chaos Game Day, Asymmetric 3-2-1 R2 DR \& Gates 5–7](#epic-33-sprint-6-weeks-1112-995-burn-rate-slos-chaos-game-day-asymmetric-3-2-1-r2-dr--gates-57)
+        - [US-7.1 — Outbound Prometheus Remote-Write \& 99.5% Burn-Rate SLO Dashboard](#us-71--outbound-prometheus-remote-write--995-burn-rate-slo-dashboard)
+        - [US-7.2 — SRE Chaos Game Day (scripts/chaos-agent-kill.sh) \& Immutable Rollback](#us-72--sre-chaos-game-day-scriptschaos-agent-killsh--immutable-rollback)
+        - [US-7.3 — Asymmetric GPG Streaming 3-2-1 Backup \& R2 Object Lock DR Drill](#us-73--asymmetric-gpg-streaming-3-2-1-backup--r2-object-lock-dr-drill)
+        - [US-7.4 — Streaming CSV/JSON Exports, CloudWatch Retention \& Portfolio Fuzzing](#us-74--streaming-csvjson-exports-cloudwatch-retention--portfolio-fuzzing)
+        - [US-7.5 — Operational Verisimilitude Gates 5–7 \& POSIX CoW risk-ledger.jsonl](#us-75--operational-verisimilitude-gates-57--posix-cow-risk-ledgerjsonl)
+      - [Epic 3.4 (Sprint 6 Validation \& Release, GitHub #54–#64, #84, #87) — Full-Stack Validation \& Release Governance](#epic-34-sprint-6-validation--release-github-5464-84-87--full-stack-validation--release-governance)
+        - [US-8.1 — Detection, Upsert, Deduplication \& Timestamp Validation Suite](#us-81--detection-upsert-deduplication--timestamp-validation-suite)
+        - [US-8.2 — Failure Scenarios, Scan Benchmarks, Release Cadence \& HLD/LLD Sync](#us-82--failure-scenarios-scan-benchmarks-release-cadence--hldlld-sync)
+  - [6. Carrying Cost Budget, FinOps \& Succession Governance](#6-carrying-cost-budget-finops--succession-governance)
+    - [6.1 Unified Budget \& Free-Tier Resource Allocation](#61-unified-budget--free-tier-resource-allocation)
+    - [6.2 Bi-Weekly Sprint Cadence \& WIP=1 Cap](#62-bi-weekly-sprint-cadence--wip1-cap)
+    - [6.3 Physical Break-Glass Sovereignty](#63-physical-break-glass-sovereignty)
+    - [6.4 Closed-Loop CTEM Integration](#64-closed-loop-ctem-integration)
+  - [7. Contributing, Local Setup \& Quality Gates](#7-contributing-local-setup--quality-gates)
+    - [7.1 Local Environment Setup](#71-local-environment-setup)
+    - [7.2 Codespaces \& Devcontainer Alignment](#72-codespaces--devcontainer-alignment)
+    - [7.3 CI/CD Pipeline Architecture \& Quality Gates](#73-cicd-pipeline-architecture--quality-gates)
+    - [7.4 Tool Glossary \& Responsibilities](#74-tool-glossary--responsibilities)
+    - [7.5 Security Framework Alignment (OWASP SAMM v2.0 \& NIST SP 800-218 SSDF)](#75-security-framework-alignment-owasp-samm-v20--nist-sp-800-218-ssdf)
+    - [7.6 Rollout Strategy, Suggested Build Order \& Common Mistakes to Avoid](#76-rollout-strategy-suggested-build-order--common-mistakes-to-avoid)
+      - [Gate vs. Advisory Rollout Strategy](#gate-vs-advisory-rollout-strategy)
+      - [Suggested Build Order](#suggested-build-order)
+      - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+    - [7.7 Verification Harness (verify\_lan\_atlas\_v5.py)](#77-verification-harness-verify_lan_atlas_v5py)
+    - [7.8 .eval/invariants/ Isolation \& Tier 0 GPG Diff Guard](#78-evalinvariants-isolation--tier-0-gpg-diff-guard)
 
 ---
 
@@ -134,8 +136,8 @@ Development happens in the open through **Cloud Security Office Hours** ([`Cloud
 | Attribute | Value |
 |---|---|
 | **Document ID** | `LAN-ATLAS-ROADMAP-v6.0` |
-| **Lead Architect** | Kyle Ingersoll (`@Computer8543`) |
-| **Contributors** | 6 Active CSOH Engineers (`@Computer8543`, `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12`, `@nicholasC03`, `@neilcar`) |
+| **Lead Architect** | Cynthia Ingersoll (`@Computer8543`) |
+| **Contributors** | 7 Active CSOH Engineers (`@Computer8543`, `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12`, `@nicholasC03`, `@neilcar`, `@princeman2`) |
 | **Release Date** | November 14, 2026 (Supersedes `v5.0` released November 12, 2026) |
 
 ### 1.2 Gate 0 Carrying-Cost Audit (4.2 < 15.0) & $0.00/mo Ceiling
@@ -153,20 +155,20 @@ Before executing Sprint 0 or admitting new architectural complexity, Gate 0 eval
 Reconciling `LANAtlas-main.zip`, `LAN Atlas - Roadmap.tsv` (72 tracked items), and `LAN_Atlas_Audited_Agile_Roadmap_v5.0_Complete.pdf`:
 
 - **Completed Baseline (22 Items Done):**
-  - Bootstrap & docs: [#8](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/8), [#9](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/9), [PR #1](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/1)
-  - Setup & deps: [#10](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/10), [#12](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/12), [#13](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/13), [#14](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/14), [#16](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/16), [#18](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/18)
-  - Codespaces: [#11](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/11), [PR #71](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/71)
-  - Initial schema tables: [#3](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/3), [#4](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/4), [#5](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/5), [#6](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/6)
-  - CI/Super-Linter: [#78](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/78), [#79](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/79), [#83](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/83)
-  - Folder structure: [#15](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/15)
+  - Bootstrap & docs: [#8](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/8), [#9](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/9), [PR #1](https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/1)
+  - Setup & deps: [#10](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/10), [#12](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/12), [#13](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/13), [#14](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/14), [#16](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/16), [#18](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/18)
+  - Codespaces: [#11](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/11), [PR #71](https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/71)
+  - Initial schema tables: [#3](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/3), [#4](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/4), [#5](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/5), [#6](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/6)
+  - CI/Super-Linter: [#78](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/78), [#79](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/79), [#83](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/83)
+  - Folder structure: [#15](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/15)
   - Identity Engine PG migration: [#85](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/85)
   - OWASP review: [#86](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/86)
-  - Recent repo fixes: [PR #103](https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/103) (`psycopg2-binary`), [PR #106](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/106) (`LanAtlasv5/` merge)
+  - Recent repo fixes: [PR #103](https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/103) (`psycopg2-binary`), [PR #106](https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/106) (`LanAtlasv5/` merge)
 - **Active Sprint 0 Stabilization WIP (6 In-Progress Issues):**
-  - [#7](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7) — Environment Setup
-  - [#17](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17) — Confirm all contributors can run the project locally
-  - [#19](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/19) — Create database initialization script
-  - [#72](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/72) — Set up Super-Linter Quality Gate for Pull Requests
+  - [#7](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7) — Environment Setup
+  - [#17](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17) — Confirm all contributors can run the project locally
+  - [#19](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/19) — Create database initialization script
+  - [#72](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/72) — Set up Super-Linter Quality Gate for Pull Requests
   - [#76](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/76) — Create Naming Convention and Standards
   - [#80](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/80) — Create Super-Linter Quality Gate Documentation
 - **Live Repo Drift Identified in `LANAtlas-main.zip`:**
@@ -525,7 +527,7 @@ Per `LAN Atlas — High-Level Design Document (v2.0: Schema to PostgreSQL)`, six
 
 ### 3.4 Three-Zone Architecture & CLASP Trust Boundaries (OWASP Top 10:2025)
 
-Aligned to [OWASP Secure Cloud Architecture Cheat Sheet — Trust Boundaries](https://www.google.com/search?q=https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html%2523trust-boundaries), CLASP trust boundaries, and OWASP Top 10:2025, LAN Atlas partitions execution into three distinct trust zones separated by explicit cryptographic and authorization boundaries:
+Aligned to [OWASP Secure Cloud Architecture Cheat Sheet — Trust Boundaries](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Cloud_Architecture_Cheat_Sheet.html#trust-boundaries), CLASP trust boundaries, and OWASP Top 10:2025, LAN Atlas partitions execution into three distinct trust zones separated by explicit cryptographic and authorization boundaries:
 
 ```mermaid
 flowchart TB
@@ -979,7 +981,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-1.1 — Fix Codespaces, PyPI Manifests & Git Hygiene
 
-- **Story ID & Links:** `US-1.1` ([GitHub #7](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7), [#17](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17), [#13](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/13), [#83](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/83))
+- **Story ID & Links:** `US-1.1` ([GitHub #7](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7), [#17](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17), [#13](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/13), [#83](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/83))
 - **Metadata:** **Owners:** `@hetzipickle`, `@Computer8543` | **Est/Priority:** 3 pts / P0 | **Remediates:** `TR-02`, `TR-23` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Pin verified Python 3.12 packages (`fastapi==0.115.6`, `pwdlib[argon2]==0.2.1`, `pytest==8.3.4`, `cryptography==44.0.0`), align `.devcontainer/devcontainer.json` with `docs/requirements-dev.txt`, strip `=======` markers from `.gitignore`, and verify Gate 0 CCI (`4.2 < 15.0`) via `python3 -O verify_lan_atlas_v5.py`.
 - **Domain Primitives:** `DP-Env-PinnedRequirement` (frozen slotted PyPI pin), `DP-Env-GitignoreLine` (conflict-free ignore rule), `DP-Gate0-CarryingCostScore` (`< 15.0` float invariant).
@@ -996,7 +998,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-1.2 — Canonical LanAtlasv5 Structure & AST Layer Linter
 
-- **Story ID & Links:** `US-1.2` ([GitHub #15](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/15), [#76](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/76), [PR #106](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/106))
+- **Story ID & Links:** `US-1.2` ([GitHub #15](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/15), [#76](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/76), [PR #106](https://github.com/CloudSecurityOfficeHours/LANAtlas/pull/106))
 - **Metadata:** **Owners:** `@hetzipickle`, `@rawsGit`, `@nerdsofafeather12` | **Est/Priority:** 3 pts / P0 | **Remediates:** `TR-03`, `TR-24` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Remove legacy `structure.txt` and root `apps/` stubs, standardize `LanAtlasv5/` `.txt` stubs to `.py` modules, publish naming standards ([#76](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/76)), enforce AST layer boundaries (`test_layer_imports.py`), and verify CON-05 set equality (24 CON, 25 ADV, 26 TR).
 - **Domain Primitives:** `DP-Arch-LayerPath` (enum: `api|services|workers|repositories|database`), `DP-Arch-MatrixIdSet` (`CON-01..24`, `ADV-01..25`, `TR-01..26`).
@@ -1013,7 +1015,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-1.3 — Topological 17-Table DDL & Dual-Role PG 16 Setup
 
-- **Story ID & Links:** `US-1.3` ([GitHub #19](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/19), [#72](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/72), [#80](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/80))
+- **Story ID & Links:** `US-1.3` ([GitHub #19](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/19), [#72](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/72), [#80](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/80))
 - **Metadata:** **Owners:** `@nerdsofafeather12`, `@Computer8543`, `@nicholasC03` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-01` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Reorder `schema.sql` topologically across all 17 canonical tables (`organization` through `audit_log`, merging `device_ports`/`services` into `device_services`), create `lanatlas_migrator` and `lanatlas_runtime` (`NOBYPASSRLS`) roles, deduplicate `.sqlfluff`, complete Super-Linter docs ([#80](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/80)), and validate `psql -v ON_ERROR_STOP=1` + `alembic upgrade head` in `ci.yml`.
 - **Domain Primitives:** `DP-DB-TableOrder` (17-table topological DAG), `DP-DB-RolePrivilege` (`lanatlas_migrator` vs `lanatlas_runtime NOBYPASSRLS`).
@@ -1034,7 +1036,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-2.1 — Async L2/TCP Subnet Scanner & RFC 1918 Ceiling
 
-- **Story ID & Links:** `US-2.1` ([GitHub #2](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/2), [#20](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/20))
+- **Story ID & Links:** `US-2.1` ([GitHub #2](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/2), [#20](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/20))
 - **Metadata:** **Owners:** `@Computer8543`, `@neilcar` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-08` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement `agent/scanner.py` with async ARP/ICMP + bounded TCP probing (`asyncio.Semaphore(64)`, `0.4s` timeout) sweeping `/24` in `<=4.5s` against 3 Alpine targets on `172.28.10.0/24`; block `169.254.0.0/16` and public `/8` CIDRs; run as UID `10001` (`--cap-drop=ALL --cap-add=NET_RAW --read-only`).
 - **Domain Primitives:** `DP-Net-Rfc1918Cidr` (validated RFC 1918 `/22` max ceiling; rejects `169.254.0.0/16` & public IPs), `DP-Scan-ProbeResult` (MAC, IP, open ports).
@@ -1051,7 +1053,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-2.2 — Agent Local SQLite WAL State Store
 
-- **Story ID & Links:** `US-2.2` ([GitHub #22](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/22))
+- **Story ID & Links:** `US-2.2` ([GitHub #22](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/22))
 - **Metadata:** **Owners:** `@rawsGit`, `@nerdsofafeather12` | **Est/Priority:** 3 pts / P0 | **Remediates:** `TR-12` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement `agent/buffer.py` using `PRAGMA journal_mode=WAL` storing discovered devices, port snapshots, and queued observation batches cleanly decoupled from PostgreSQL 16.
 - **Domain Primitives:** `DP-Edge-WalBatch` (batch UUID, payload bytes, `is_heartbeat_only` flag), `DP-Edge-SpoolCap` (`max_batches=500`, `max_bytes=52428800`).
@@ -1068,7 +1070,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-2.3 — Local Inspection CLI & Protocol v1 Wire Schemas
 
-- **Story ID & Links:** `US-2.3` ([GitHub #21](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/21))
+- **Story ID & Links:** `US-2.3` ([GitHub #21](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/21))
 - **Metadata:** **Owners:** `@hetzipickle`, `@nicholasC03` | **Est/Priority:** 3 pts / P1 | **Remediates:** `TR-14` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Build `lanatlas-agent inspect` CLI reporting active, 24h new, and missing devices backed by Pydantic v2 Domain Primitives (`observation_v1.py`, `heartbeat_v1.py`) surviving `python3 -O`.
 - **Domain Primitives:** `DP-Wire-ObservationV1` (Pydantic v2 printable ASCII hostname/banner), `DP-Wire-HeartbeatV1` (`agent_id`, `monotonic_ts`).
@@ -1087,7 +1089,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-3.1 — Multi-Tenant PG 16 Pool, TCP Keepalives & Mandatory RLS
 
-- **Story ID & Links:** `US-3.1` ([GitHub #24](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/24), [#40](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/40))
+- **Story ID & Links:** `US-3.1` ([GitHub #24](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/24), [#40](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/40))
 - **Metadata:** **Owners:** `@nerdsofafeather12`, `@rawsGit` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-06` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement `pool.py` and `transaction.py` connecting strictly as `lanatlas_runtime` (`NOBYPASSRLS`) with `keepalives_idle=5`, `keepalives_interval=2`, `keepalives_count=3`, executing `SET LOCAL app.current_org_id` under `FORCE ROW LEVEL SECURITY` across all tenant tables.
 - **Domain Primitives:** `DP-Tenant-OrgId` (positive `int > 0`), `DP-DB-KeepaliveConfig` (`idle=5`, `interval=2`, `count=3`).
@@ -1121,7 +1123,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-3.3 — Argon2id Login, RBAC Middleware & OWASP Mapping
 
-- **Story ID & Links:** `US-3.3` ([GitHub #27](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/27), [#40](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/40), [#86](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/86))
+- **Story ID & Links:** `US-3.3` ([GitHub #27](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/27), [#40](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/40), [#86](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/86))
 - **Metadata:** **Owners:** `@Computer8543`, `@hetzipickle`, `@neilcar` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-15` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement OAuth 2.0/OIDC PKCE login (`users.oauth_provider`, `users.oauth_subject` — zero stored user passwords) with `pwdlib[argon2]==0.2.1` verifier for break-glass admin/verifier tokens, `HttpOnly`/`Secure`/`SameSite=Strict` JWT cookies, and `admin`/`analyst`/`viewer` RBAC middleware; document all controls in `docs/owasp-controls-mapping.md` with zero hardcoded secrets (`gitleaks`).
 - **Domain Primitives:** `DP-Auth-RbacRole` (enum: `admin|analyst|viewer`), `DP-Auth-SessionCookie` (`HttpOnly`, `Secure`, `SameSite=Strict`), `DP-Auth-ReadOnceSecret` (read-once `SensitiveValue` zeroing secret buffer after `.read_once()` and blocking `__repr__`/`__str__`/serialization).
@@ -1138,7 +1140,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-3.4 — Site Creation & Concurrent Enrollment Token Table
 
-- **Story ID & Links:** `US-3.4` ([GitHub #28](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/28))
+- **Story ID & Links:** `US-3.4` ([GitHub #28](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/28))
 - **Metadata:** **Owners:** `@nicholasC03`, `@hetzipickle` | **Est/Priority:** 3 pts / P1 | **Remediates:** `TR-04` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement site creation API validating RFC 1918 `/22` bounds and minting 15-minute single-use tokens in `agent_enrollment_tokens` redeemed atomically via `UPDATE ... WHERE used_at IS NULL AND expires_at > NOW() RETURNING id`.
 - **Domain Primitives:** `DP-Enroll-SingleUseToken` (UUID, SHA-256 `token_hash`, 15m `expires_at`), `DP-Net-SiteCidr` (RFC 1918 `/22`).
@@ -1157,7 +1159,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-4.1 — Ed25519 Agent Enrollment & Signed Observation Ingestion
 
-- **Story ID & Links:** `US-4.1` ([GitHub #25](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/25), [#29](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/29))
+- **Story ID & Links:** `US-4.1` ([GitHub #25](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/25), [#29](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/29))
 - **Metadata:** **Owners:** `@Computer8543`, `@neilcar` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-04` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Exchange single-use enrollment tokens for per-agent `agents.public_key_pem` and verify Ed25519 signatures, `+-60s` timestamps, and `payload_hash` deduplication on `POST /api/v1/agents/{id}/observations`.
 - **Domain Primitives:** `DP-Crypto-Ed25519Sig` (64-byte signature + `+-60s` timestamp), `DP-Wire-PayloadHash` (SHA-256 hex).
@@ -1174,7 +1176,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-4.2 — State-Delta Persistence & Hourly Compaction
 
-- **Story ID & Links:** `US-4.2` ([GitHub #26](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/26))
+- **Story ID & Links:** `US-4.2` ([GitHub #26](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/26))
 - **Metadata:** **Owners:** `@rawsGit`, `@nerdsofafeather12` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-05` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement bulk PostgreSQL `UNNEST` ingestion updating `devices.last_seen` and `hourly_rollups` on every scan while inserting into `observations` and `device_services` strictly on state/port deltas (`-98.2%` RDS writes).
 - **Domain Primitives:** `DP-Ingest-DeltaBatch` (changed devices/services only), `DP-Ingest-HourlyBucket` (UTC hour-truncated rollup key).
@@ -1191,7 +1193,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-4.3 — Per-Site Inventory Dashboard Views
 
-- **Story ID & Links:** `US-4.3` ([GitHub #30](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/30))
+- **Story ID & Links:** `US-4.3` ([GitHub #30](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/30))
 - **Metadata:** **Owners:** `@hetzipickle`, `@nicholasC03` | **Est/Priority:** 3 pts / P1 | **Remediates:** `TR-14` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Build Jinja2/HTMX dashboard views displaying active devices, 24h/7d new arrivals, missing devices, agent liveness, and per-device service/port tables from cached `devices` state.
 - **Domain Primitives:** `DP-UI-SiteViewFilter` (`active|new_24h|new_7d|missing`), `DP-UI-EscapedBanner` (HTML-escaped string).
@@ -1208,7 +1210,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-4.4 — Zero-NAT-Gateway AWS Free Tier Deployment
 
-- **Story ID & Links:** `US-4.4` ([GitHub #31](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/31))
+- **Story ID & Links:** `US-4.4` ([GitHub #31](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/31))
 - **Metadata:** **Owners:** `@Computer8543`, `@nicholasC03` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-15` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Deploy multi-tenant MVP to Single-AZ `db.t4g.micro` RDS (private subnet, TLS enforced) and EC2 `t4g.small`/`t3.micro` (public subnet locked to `443`, 2 local container replicas, zero NAT Gateway, zero Redis/DynamoDB) using IAM Roles + SSM Parameter Store and `$5.00` AWS Budgets alarm.
 - **Domain Primitives:** `DP-FinOps-FreeTierSpec` (`0` NAT Gateways, `0` Redis, `0` DynamoDB, `$5.00` budget alarm).
@@ -1229,7 +1231,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-5.1 — Signed Agent Heartbeats, 2s Lock Supervisor & 30s Watchdog
 
-- **Story ID & Links:** `US-5.1` ([GitHub #33](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/33), [#34](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/34))
+- **Story ID & Links:** `US-5.1` ([GitHub #33](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/33), [#34](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/34))
 - **Metadata:** **Owners:** `@Computer8543`, `@rawsGit` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-09` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement 60s signed heartbeats and a background worker with a 2s `pg_try_advisory_lock` supervisor loop running a 30s liveness tick marking agents offline after 3 missed checks (`180s`, `<=220s` MTTA).
 - **Domain Primitives:** `DP-SRE-HeartbeatTick` (`60s` interval), `DP-SRE-LivenessThreshold` (`180s` offline, `<=220s` MTTA).
@@ -1246,7 +1248,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-5.2 — Topology-Aware Alert Rules Engine
 
-- **Story ID & Links:** `US-5.2` ([GitHub #35](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/35), [#36](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/36), [#37](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/37))
+- **Story ID & Links:** `US-5.2` ([GitHub #35](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/35), [#36](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/36), [#37](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/37))
 - **Metadata:** **Owners:** `@nerdsofafeather12`, `@neilcar` | **Est/Priority:** 5 pts / P0 | **Remediates:** `TR-10` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement `new_device`, `missing_device`, and `new_open_port` rules against `device_services.is_expected`; suppress per-device alerts when parent agent is offline or `>25%` of site devices drop in one batch, firing 1 `site_mass_outage` digest.
 - **Domain Primitives:** `DP-Alert-RuleType` (`new_device|missing_device|new_open_port|site_mass_outage`), `DP-Alert-CoalesceRatio` (`>0.25` batch drop).
@@ -1263,7 +1265,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-5.3 — Alerts Triage UI, 60s SES Digests & Scoped CIS v8 Mapping
 
-- **Story ID & Links:** `US-5.3` ([GitHub #38](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/38), [#39](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/39), [#41](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/41))
+- **Story ID & Links:** `US-5.3` ([GitHub #38](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/38), [#39](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/39), [#41](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/41))
 - **Metadata:** **Owners:** `@hetzipickle`, `@nicholasC03` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-21` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Build Alerts UI (`open`/`ack`/`resolved` + `analyst_notes`), dispatch 60s coalesced AWS SES digests (`<=3,000/mo`), and author `docs/cis-controls-mapping.md` scoped strictly to CIS Control 1 (`1.1`–`1.2`) and Control 2/4 network service baselines.
 - **Domain Primitives:** `DP-Alert-TriageState` (`open|ack|resolved`), `DP-Comp-CisScope` (CIS Control `1.1`–`1.2`, `2.1`, `4.8` only).
@@ -1282,7 +1284,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-6.1 — Monkey-Patch-Immune Decoupled AI Invariant Suite
 
-- **Story ID & Links:** `US-6.1` ([GitHub #42 Prep](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42))
+- **Story ID & Links:** `US-6.1` ([GitHub #42 Prep](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42))
 - **Metadata:** **Owners:** `@Computer8543`, All Contributors | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-16` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Scaffold `.eval/invariants/` (RLS, RFC 1918, Ed25519, audit immutability) running with `PYTHONNOUSERSITE=1` and read-only `PYTHONPATH=/eval_harness` (`chmod 0400`, UID `10002`), guarded by Tier 0 GPG diff check in `ci.yml` covering `.eval/**`, `.github/workflows/**`, `.githooks/**`, `conftest.py`, and `pyproject.toml`.
 - **Domain Primitives:** `DP-Eval-ProtectedPath` (`.eval/**`, `.github/workflows/**`, `.githooks/**`, `conftest.py`, `pyproject.toml`), `DP-Eval-SignerKey` (`@Computer8543` GPG).
@@ -1299,7 +1301,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-6.2 — Trigger-Immutable SOC 2 Audit Log & Serialized Hash Chain
 
-- **Story ID & Links:** `US-6.2` ([GitHub #42 Prep](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42))
+- **Story ID & Links:** `US-6.2` ([GitHub #42 Prep](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42))
 - **Metadata:** **Owners:** `@nerdsofafeather12`, `@rawsGit` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-20`, `TR-25` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Implement `audit_log` with `trg_audit_log_immutable` (blocking `UPDATE`/`DELETE`/`TRUNCATE` even by owner) and `trg_audit_log_chain` computing SHA-256 `record_hash` via length-prefixed pipe-delimited canonicalization (`octet_length(...) || ':' || ... || '|'`), schema-qualified `extensions.digest(..., 'sha256')`, and `pg_advisory_xact_lock`.
 - **Domain Primitives:** `DP-Audit-CanonicalField` (length-prefixed `octet_length(...) || ':' || val`), `DP-Audit-ChainHash` (64-char hex SHA-256).
@@ -1316,7 +1318,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-6.3 — SQLite WAL 500-Batch FIFO Ring Buffer & Decorrelated Jitter Retry
 
-- **Story ID & Links:** `US-6.3` ([GitHub #43](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/43), [#44](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/44))
+- **Story ID & Links:** `US-6.3` ([GitHub #43](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/43), [#44](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/44))
 - **Metadata:** **Owners:** `@rawsGit`, `@Computer8543` | **Est/Priority:** 3 pts / P1 | **Remediates:** `TR-12` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Cap offline SQLite WAL spool in `agent/buffer.py` at 500 batches (`<=50 MB`, evicting oldest heartbeat-only rows first) and drain on reconnect with decorrelated jitter backoff at `<=2 batches/sec`.
 - **Domain Primitives:** `DP-Retry-JitterDelay` (decorrelated jitter `<=2 batches/s`), `DP-Edge-FifoWaterMark` (`<=500 batches` / `<=50 MB`).
@@ -1333,7 +1335,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-6.4 — Two-Tier Authenticated Rate Limiter
 
-- **Story ID & Links:** `US-6.4` ([GitHub #42](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42), [#45](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/45), [#46](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/46), [#47](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/47), [#48](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/48))
+- **Story ID & Links:** `US-6.4` ([GitHub #42](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42), [#45](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/45), [#46](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/46), [#47](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/47), [#48](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/48))
 - **Metadata:** **Owners:** `@neilcar`, `@Computer8543` | **Est/Priority:** 3 pts / P1 | **Remediates:** `TR-13` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Verify Ed25519 signature headers in `api/middleware/rate_limit.py` before incrementing per-`agent_id` token buckets so CGNAT agents never lock each other out and unauthenticated floods fail pre-auth.
 - **Domain Primitives:** `DP-Rate-AgentBucket` (per-`agent_id` token bucket), `DP-Rate-PreAuthResult` (`VALID|REJECT_PREAUTH`).
@@ -1350,7 +1352,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-6.5 — Wire Schema Versioning, Banner/Hostname XSS Sanitization & 30-Day Pruning
 
-- **Story ID & Links:** `US-6.5` ([GitHub #49](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/49), [#86](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/86))
+- **Story ID & Links:** `US-6.5` ([GitHub #49](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/49), [#86](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/86))
 - **Metadata:** **Owners:** `@nerdsofafeather12`, `@nicholasC03` | **Est/Priority:** 3 pts / P2 | **Remediates:** `TR-14` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Enforce printable ASCII regex and HTML stripping on scraped hostnames and service banners in `observation_v1.py`, and implement `workers/cleanup_worker.py` pruning raw observations `>30 days` old.
 - **Domain Primitives:** `DP-Wire-SanitizedBanner` (printable ASCII `0x20-0x7E` only), `DP-Ret-WindowDays` (`30 days`).
@@ -1369,7 +1371,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-7.1 — Outbound Prometheus Remote-Write & 99.5% Burn-Rate SLO Dashboard
 
-- **Story ID & Links:** `US-7.1` ([GitHub #53](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/53))
+- **Story ID & Links:** `US-7.1` ([GitHub #53](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/53))
 - **Metadata:** **Owners:** `@Computer8543`, `@nicholasC03` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-18` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Bind `/metrics` strictly to `127.0.0.1` on EC2 and push outbound to Grafana Cloud Free Tier tracking 99.5% Observation Ingestion SLO (`3.65h/mo` budget) and `p95 <=10s` latency with `1h` (`14.4x`) and `6h` (`6x`) multi-window burn-rate alerts.
 - **Domain Primitives:** `DP-SLO-IngestionTarget` (`99.5%`, `3.65h/mo` budget, `p95 <= 10s`), `DP-SLO-BurnWindow` (`1h @ 14.4x`, `6h @ 6x`).
@@ -1386,7 +1388,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-7.2 — SRE Chaos Game Day (scripts/chaos-agent-kill.sh) & Immutable Rollback
 
-- **Story ID & Links:** `US-7.2` ([GitHub #52](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/52))
+- **Story ID & Links:** `US-7.2` ([GitHub #52](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/52))
 - **Metadata:** **Owners:** `@rawsGit`, `@neilcar` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-19` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Prove `<2s` advisory lock failover on primary worker `SIGKILL`, `<11s` TCP keepalive lock release on simulated network blackhole, and `<60s` rollback to pinned `@sha256` container digest.
 - **Domain Primitives:** `DP-Chaos-FailoverBudget` (`sigkill_sec < 2.0`, `net_blackhole_sec < 11.0`, `rollback_sec < 60.0`), `DP-Deploy-ImageDigest` (`@sha256:...`).
@@ -1403,10 +1405,10 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-7.3 — Asymmetric GPG Streaming 3-2-1 Backup & R2 Object Lock DR Drill
 
-- **Story ID & Links:** `US-7.3` ([GitHub #50](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/50))
+- **Story ID & Links:** `US-7.3` ([GitHub #50](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/50))
 - **Metadata:** **Owners:** `@nerdsofafeather12`, `@Computer8543` | **Est/Priority:** 5 pts / P1 | **Remediates:** `TR-17` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
-- **Acceptance Criteria:** Stream nightly `pg_dump -Fc` over TLS through asymmetric `gpg --encrypt -r "kyle@csoh.org"` to Cloudflare R2 with 30-day Object Lock (Compliance Mode) and write-only API token; store offline private key on break-glass USB and verify `<15m` staging restore.
-- **Domain Primitives:** `DP-DR-AsymmetricRecipient` (`kyle@csoh.org` pubkey), `DP-DR-R2ObjectKey` (`UTC-ISO-UUID.dump.gpg`, 30d Compliance Lock).
+- **Acceptance Criteria:** Stream nightly `pg_dump -Fc` over TLS through asymmetric `gpg --encrypt -r "college1b7e@gmail.com"` to Cloudflare R2 with 30-day Object Lock (Compliance Mode) and write-only API token; store offline private key on break-glass USB and verify `<15m` staging restore.
+- **Domain Primitives:** `DP-DR-AsymmetricRecipient` (`college1b7e@gmail.com` pubkey), `DP-DR-R2ObjectKey` (`UTC-ISO-UUID.dump.gpg`, 30d Compliance Lock).
 - **Frozen Contracts:**
   1. `BoundaryParser` — `parse_backup_env`: Validates R2 write-only token and public GPG key ID (zero passphrases).
   2. `PureCore` — `generate_uuid_object_key`: Constructs non-overwritable timestamped UUID key.
@@ -1420,7 +1422,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-7.4 — Streaming CSV/JSON Exports, CloudWatch Retention & Portfolio Fuzzing
 
-- **Story ID & Links:** `US-7.4` ([GitHub #42](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42), [#51](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/51))
+- **Story ID & Links:** `US-7.4` ([GitHub #42](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/42), [#51](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/51))
 - **Metadata:** **Owners:** `@hetzipickle`, `@nicholasC03` | **Est/Priority:** 3 pts / P2 | **Remediates:** `TR-11`, `TR-22` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Stream 30-day 100k-row exports via `COPY (...) TO STDOUT` (`<=32 MB` worker RSS delta, `<3.5s`), configure 7-day CloudWatch JSON retention, and fuzz operational integers into `${AGENT_MAX_SPOOL_BATCHES}` env vars in public docs.
 - **Domain Primitives:** `DP-Export-StreamBounds` (`<=32 MB` RSS delta, `<3.5s` for 100k rows), `DP-Doc-FuzzedEnvVar` (`${AGENT_MAX_SPOOL_BATCHES}`).
@@ -1456,7 +1458,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 ##### US-8.1 — Detection, Upsert, Deduplication & Timestamp Validation Suite
 
-- **Story ID & Links:** `US-8.1` ([GitHub #55](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/55), [#56](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/56), [#57](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/57), [#58](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/58), [#59](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/59), [#60](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/60))
+- **Story ID & Links:** `US-8.1` ([GitHub #55](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/55), [#56](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/56), [#57](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/57), [#58](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/58), [#59](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/59), [#60](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/60))
 - **Metadata:** **Owners:** `@rawsGit`, `@nerdsofafeather12` | **Est/Priority:** 3 pts / P1 | **Remediates:** `TR-05`, `TR-07` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
 - **Acceptance Criteria:** Execute automated validation tests for known/new/missing device detection, database upsert idempotency, duplicate prevention, and `last_seen` timestamp logic across 1,500 simulated devices.
 - **Domain Primitives:** `DP-Val-SimScenario` (`known|new|missing|upsert|dedup|last_seen`), `DP-Val-DeviceCount` (1,500 devices).
@@ -1509,12 +1511,12 @@ Per [Section 1.2](#12-gate-0-carrying-cost-audit-42--150--000mo-ceiling), the ba
 ### 6.2 Bi-Weekly Sprint Cadence & WIP=1 Cap
 
 - **Cadence & Ownership:** Engineering executes on bi-weekly sprints led by `@Computer8543` across 6 active Cloud Security Office Hours (CSOH) contributors.
-- **Sprint 0 72-Hour Stabilization Gate:** Before Sprint 1 opens, Sprint 0 clears all 6 active In-Progress issues ([#7](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7), [#17](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17), [#19](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/19), [#72](https://www.google.com/search?q=https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/72), [#76](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/76), [#80](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/80)) inside a 72-hour gate to eliminate repository drift, align devcontainer manifests, and establish the 17-table PostgreSQL 16 schema.
+- **Sprint 0 72-Hour Stabilization Gate:** Before Sprint 1 opens, Sprint 0 clears all 6 active In-Progress issues ([#7](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7), [#17](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17), [#19](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/19), [#72](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/72), [#76](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/76), [#80](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/80)) inside a 72-hour gate to eliminate repository drift, align devcontainer manifests, and establish the 17-table PostgreSQL 16 schema.
 - **Strict WIP=1 Limit:** Contributors are capped at **1 active In-Progress user story per contributor** at any time to prevent context-switching overhead and preserve deterministic gate verification.
 
 ### 6.3 Physical Break-Glass Sovereignty
 
-Nightly PostgreSQL backups stream over TLS through an asymmetric GPG pipe (`pg_dump -Fc | gpg --encrypt -r "kyle@csoh.org" | rclone rcat`) with zero local temporary files into Cloudflare R2 protected by a 30-day Compliance Mode Object Lock and a write-only API token (`s3:DeleteObject` and overwrites return `AccessDenied`).
+Nightly PostgreSQL backups stream over TLS through an asymmetric GPG pipe (`pg_dump -Fc | gpg --encrypt -r "college1b7e@gmail.com" | rclone rcat`) with zero local temporary files into Cloudflare R2 protected by a 30-day Compliance Mode Object Lock and a write-only API token (`s3:DeleteObject` and overwrites return `AccessDenied`).
 
 To prevent single-point credential loss or unauthorized online decryption:
 - The **offline GPG private decryption key** and **administrative Cloudflare R2 / AWS root recovery credentials** are never stored on the host or in CI secrets.
@@ -1530,7 +1532,7 @@ Continuous Threat Exposure Management (CTEM) links all 26 Threat Register gates 
 
 ## 7. Contributing, Local Setup & Quality Gates
 
-See [Contributor Setup](https://www.google.com/search?q=docs/contributor-setup.md) for local environment and `.env` instructions, and `AGENTS.md` / `GEMINI.md` for AI agent bounded-context conventions. Branch naming, PR templates, and commit message conventions (Conventional Commits) are defined in `CONTRIBUTING.md`.
+See [Contributor Setup](contributor-setup.md) for local environment and `.env` instructions, and `AGENTS.md` / `GEMINI.md` for AI agent bounded-context conventions. Branch naming, PR templates, and commit message conventions (Conventional Commits) are defined in `CONTRIBUTING.md`.
 
 ### 7.1 Local Environment Setup
 

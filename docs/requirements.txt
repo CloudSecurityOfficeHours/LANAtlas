@@ -11,10 +11,10 @@ pydantic==2.13.4
 python-dotenv==1.2.2  
 
 # HTTP / networking
-requests==2.33.0
+requests==2.34.2
 
 # Security
-cryptography>=50.0.0
+cryptography>=50.0.2
 pwdlib>=0.3.0
 pyJWT[crypto]>=2.15.1
 

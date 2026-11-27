@@ -200,7 +200,13 @@ CREATE TABLE sites (
         CHECK (business_hours_end BETWEEN 0 AND 23),
 
     CONSTRAINT ck_sites_biz_hours_order
-        CHECK (business_hours_end > business_hours_start)
+        CHECK (business_hours_end > business_hours_start),
+
+    -- Comma-separated ISO weekdays (1=Mon .. 7=Sun), no spaces, e.g. '1,2,3,4,5'.
+    -- find_overdue() splits this string; a malformed value would silently
+    -- drop days from the missing-device business-hours window.
+    CONSTRAINT ck_sites_business_days
+        CHECK (business_days ~ '^[1-7](,[1-7])*$')
 );
 
 CREATE INDEX idx_sites_org ON sites (organization_id);
@@ -725,6 +731,11 @@ CREATE INDEX idx_alerts_org_unresolved  ON alerts (organization_id, resolved_at)
     WHERE resolved_at IS NULL;                          -- partial index: only open alerts
 
 CREATE INDEX idx_alerts_device_active   ON alerts (device_id, resolved_at);
+
+-- At most one unresolved alert per (device, alert type). Makes alert creation
+-- idempotent under concurrent worker runs (alerts.create uses ON CONFLICT).
+CREATE UNIQUE INDEX uq_alerts_open_device_type ON alerts (device_id, alert_type_id)
+    WHERE resolved_at IS NULL AND device_id IS NOT NULL;
 CREATE INDEX idx_alerts_site            ON alerts (site_id, created_at DESC);
 
 CREATE TRIGGER trg_alerts_updated_at
@@ -816,6 +827,7 @@ CREATE TRIGGER trg_analyst_notes_updated_at
 -- observations       : idx_obs_device_time, idx_obs_org_site_time, idx_obs_device_lookup,
 --                      idx_obs_agent_time, idx_obs_network_segment
 -- device_ports       : idx_ports_device
--- alerts             : idx_alerts_org_unresolved (partial), idx_alerts_device_active, idx_alerts_site
+-- alerts             : idx_alerts_org_unresolved (partial), idx_alerts_device_active, idx_alerts_site,
+--                      uq_alerts_open_device_type (partial, unique)
 -- analyst_notes      : idx_analyst_notes_user, idx_analyst_notes_device
 -- =============================================================================
