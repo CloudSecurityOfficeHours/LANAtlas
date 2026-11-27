@@ -2,7 +2,7 @@
   "name": "lan-atlas-codespace",
   "image": "mcr.microsoft.com/devcontainers/python:3",
   "features": {},
-  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements-dev.txt",
+  "postCreateCommand": "pip install --upgrade pip && pip install -r docs/requirements-dev.txt",
   "customizations": {
     "vscode": {
       "settings": {
