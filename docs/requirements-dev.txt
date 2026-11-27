@@ -4,8 +4,8 @@ sqlalchemy==2.0.52
 alembic==1.14.0
 pydantic==2.13.4
 python-dotenv==1.2.2
-requests==2.34.2
-cryptography>=50.0.0
+requests==2.33.0
+cryptography>=50.0.2
 passlib[bcrypt]==1.7.4
 pyjwt[crypto]==2.15.1
 boto3==1.35.78
