@@ -110,7 +110,7 @@ celerybeat.pid
 .envrc
 .venv
 env/
-=======
+
 # Virtual environments
 .venv/
 venv/
@@ -161,7 +161,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-=======
+
 # ------------------------------
 # Logs / runtime files
 # ------------------------------
