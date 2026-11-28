@@ -15,7 +15,7 @@ requests==2.34.2
 
 # Security
 cryptography>=50.0.2
-pwdlib>=0.3.0
+pwdlib>=0.4.2
 pyJWT[crypto]>=2.15.1
 
 # AWS
