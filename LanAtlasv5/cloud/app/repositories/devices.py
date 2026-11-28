@@ -70,6 +70,13 @@ def insert_device(
 
     # ON CONFLICT fired — the device already exists. Fetch its id.
     existing = fetch_by_fingerprint(db, organization_id, site_id, fingerprint_hash)
+    
+    if existing is None:
+        raise RuntimeError(
+            "Device insert conflicted on fingerprint, but no existing row was found "
+            f"(organization_id={organization_id}, site_id={site_id})."
+        )
+    
     return existing["id"]
 
 
@@ -153,6 +160,16 @@ def find_overdue(db: Connection, business_hours_only: bool = False) -> list[dict
     If business_hours_only is True, only devices whose site is currently
     inside its business hours and business days (in the site's own
     timezone) are returned.
+ 
+    NOTE: missing_threshold_hours is measured in raw wall-clock hours, not
+    business hours. business_hours_only only gates *when* the check runs.
+    A workstation powered off Friday 17:00 is ~64h unseen at Monday 09:00,
+    so devices that are only on during business days need a threshold of
+    at least 72 hours to avoid a Monday-morning alert storm.
+ 
+    NOTE: sites.timezone must be a valid IANA name (see pg_timezone_names).
+    A single invalid value makes AT TIME ZONE raise and aborts this query
+    for every site, so site create/update must validate it.
     """
     rows = db.execute(
         text("""
@@ -172,11 +189,10 @@ def find_overdue(db: Connection, business_hours_only: bool = False) -> list[dict
                       AND EXTRACT(HOUR FROM NOW() AT TIME ZONE s.timezone)
                           < s.business_hours_end
                       AND EXTRACT(ISODOW FROM NOW() AT TIME ZONE s.timezone)::text
-                          = ANY(string_to_array(s.business_days, ','))
+                          = ANY(regexp_split_to_array(s.business_days, '\\s*,\\s*'))
                   )
               )
         """),
         {"business_hours_only": business_hours_only},
     ).fetchall()
     return [dict(row._mapping) for row in rows]
- 

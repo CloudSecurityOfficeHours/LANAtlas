@@ -2,7 +2,7 @@
 services/identity.py
 
 Business logic for device identity resolution. This is the direct
-successor to the original identity_engine.py — same algorithm, same
+successor to the original identity_engine.py; same algorithm, same
 decision logic, but with all SQL moved out to repositories/devices.py,
 repositories/signals.py, and repositories/observations.py.
 
@@ -19,7 +19,7 @@ Two behavioral changes from the original engine, both intentional:
 
 2. update_signals() now threads the observation's actual protocol_used
    through to the stored signal's `source` column, instead of the
-   original engine's hardcoded "ARP" — a bug fix uncovered while
+   original engine's hardcoded "ARP"; a bug fix uncovered while
    splitting the function apart.
 
 3. Transaction commits are no longer called from within this module.
@@ -117,7 +117,7 @@ def calculate_identity_strength(signal_types: list[str]) -> int:
         return 0
 
     unique_types = sorted(set(signal_types), key=lambda s: SIGNAL_WEIGHTS.get(s, 0), reverse=True)
-    strength = SIGNAL_WEIGHTS.get(unique_types[0], 0)
+    strength: float = SIGNAL_WEIGHTS.get(unique_types[0], 0)
     for signal_type in unique_types[1:]:
         strength += SIGNAL_WEIGHTS.get(signal_type, 0) * 0.5
 
@@ -262,20 +262,31 @@ def resolve_observation(db, observation: dict) -> dict:
     # If the incoming observation carries a hardware anchor not yet
     # stored on the candidate, add its weight — it is new evidence of
     # identity even though the candidate hasn't confirmed it before.
+    # Anchors already in best_method were counted by score_candidate(), so
+    # only genuinely new anchors earn the bonus, and the result still
+    # respects the scan tier's confidence ceiling.
     if incoming_has_anchor and best_match is not None:
-        anchor_bonus = max(
-            SIGNAL_WEIGHTS[s] for s in incoming_signals if s in HARDWARE_ANCHORED_SIGNALS
-        )
-        best_score = min(best_score + anchor_bonus, 100)
+        new_anchors = [
+            s for s in incoming_signals
+            if s in HARDWARE_ANCHORED_SIGNALS and s not in best_method
+        ]
+        if new_anchors:
+            anchor_bonus = max(SIGNAL_WEIGHTS[s] for s in new_anchors)
+            best_score = min(best_score + anchor_bonus, confidence_ceiling)
 
     match_method = "+".join(best_method) if best_method else "NONE"
 
     # HIGH confidence + hardware anchor in the incoming observation -> auto-link
-    if best_score >= CONFIDENCE_THRESHOLDS["HIGH"] and incoming_has_anchor:
-        observation_repo.link(db, observation["id"], best_match["device_id"], best_score, match_method)
-        update_signals(db, best_match["device_id"], observation, incoming_signals)
+    if (
+        best_match is not None
+        and best_score >= CONFIDENCE_THRESHOLDS["HIGH"]
+        and incoming_has_anchor
+    ):
+        device_id = best_match["device_id"]
+        observation_repo.link(db, observation["id"], device_id, best_score, match_method)
+        update_signals(db, device_id, observation, incoming_signals)
         return {
-            "device_id":        best_match["device_id"],
+            "device_id":        device_id,
             "match_confidence": best_score,
             "match_method":     match_method,
             "action":           "linked",

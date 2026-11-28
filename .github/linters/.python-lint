@@ -1,0 +1,18 @@
+[MASTER]
+
+[MESSAGES CONTROL]
+# protected-access: SQLAlchemy's Row._mapping is public API despite the underscore.
+# too-many-*: repository/service functions mirror DB columns, so long
+#   signatures and many locals are expected.
+# duplicate-code: tests intentionally repeat the production INSERT statements.
+disable=import-error,
+        protected-access,
+        too-many-arguments,
+        too-many-positional-arguments,
+        too-many-locals,
+        too-many-instance-attributes,
+        too-few-public-methods,
+        duplicate-code
+
+[FORMAT]
+max-line-length=100

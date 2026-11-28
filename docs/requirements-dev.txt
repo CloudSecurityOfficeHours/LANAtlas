@@ -1,15 +1,7 @@
-fastapi==0.141.1
-uvicorn[standard]==0.54.0
-sqlalchemy==2.0.52
-alembic==1.14.0
-pydantic==2.13.4
-python-dotenv==1.2.2
-requests==2.33.0
-cryptography>=50.0.2
-passlib[bcrypt]==1.7.4
-pyjwt[crypto]==2.15.1
-boto3==1.35.78
-jinja2==3.1.6
+# Development / CI tools.
+# Includes the runtime requirements so mypy and pytest see real
+-r requirements.txt
+
 pytest==9.0.3
 pytest-cov==6.0.0
 ruff==0.16.4
