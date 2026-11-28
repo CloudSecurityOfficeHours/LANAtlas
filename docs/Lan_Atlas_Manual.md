@@ -46,7 +46,7 @@
     - [3.7 Substrate-First Isolation \& Operational Verisimilitude (Gates 5–7)](#37-substrate-first-isolation--operational-verisimilitude-gates-57)
     - [3.8 Subsystem Evolution \& Comparison Matrix (v1.0 -\> v3.0/v4.0 -\> v5.0 -\> v6.0)](#38-subsystem-evolution--comparison-matrix-v10---v30v40---v50---v60)
   - [4. Technology Stack, Repository Structure \& Database Schema](#4-technology-stack-repository-structure--database-schema)
-    - [4.1 Technology Stack (README.md Baseline vs. v6.0 Pinned Python 3.12 Stack)](#41-technology-stack-readmemd-baseline-vs-v60-pinned-python-312-stack)
+    - [4.1 Technology Stack (README.md Baseline vs. v6.0 Pinned Python 3.15.2 Stack)](#41-technology-stack-readmemd-baseline-vs-v60-pinned-python-312-stack)
     - [4.2 Canonical LanAtlasv5/ Directory Layout](#42-canonical-lanatlasv5-directory-layout)
     - [4.3 Database Schema, Dual-Role Isolation \& Audit Chain](#43-database-schema-dual-role-isolation--audit-chain)
       - [LLD v2.0 Summary Metrics \& Migration Summary (SQLite v1.3 -\> PostgreSQL v2.0)](#lld-v20-summary-metrics--migration-summary-sqlite-v13---postgresql-v20)
@@ -145,7 +145,7 @@ Development happens in the open through **Cloud Security Office Hours** ([`Cloud
 Before executing Sprint 0 or admitting new architectural complexity, Gate 0 evaluates the Operational Carrying-Cost Index (CCI) against a hard ceiling of `15.0` and a `$0.00/mo` infrastructure budget:
 
 - **Cloud Infrastructure & FinOps Burden (Weight `0.25` | Score `0.5`):** `$0.00/mo` AWS Free Tier (EC2 `t4g.small`/`t3.micro`, Single-AZ RDS `db.t4g.micro`, SES, SSM Parameter Store) + Cloudflare R2 Free Tier + Grafana Cloud Free Tier; zero NAT Gateway, zero Redis, zero DynamoDB.
-- **Runtime Dependency & Stack Surface (Weight `0.25` | Score `1.2`):** Single-language Python 3.12 (`FastAPI==0.115.6`, `Pydantic v2 2.10.4`, `SQLAlchemy 2.0.36`, `cryptography==44.0.0`, `pwdlib[argon2]==0.2.1`) + PostgreSQL 16 + SQLite 3 WAL edge spool.
+- **Runtime Dependency & Stack Surface (Weight `0.25` | Score `1.2`):** Single-language Python 3.15.2 (`FastAPI==0.115.6`, `Pydantic v2 2.10.4`, `SQLAlchemy 2.0.36`, `cryptography==44.0.0`, `pwdlib[argon2]==0.2.1`) + PostgreSQL 16 + SQLite 3 WAL edge spool.
 - **Operational Failover & DR Maintenance (Weight `0.25` | Score `1.3`):** 2 local container replicas with 2s `pg_try_advisory_lock` supervisor; zero-disk asymmetric GPG pipe (`pg_dump | gpg --encrypt -r`) to immutable Cloudflare R2 Object Lock.
 - **Governance, CI & Eval Overhead (Weight `0.25` | Score `1.2`):** 26 deterministic CI gates (`TR-01`–`TR-26`), `verify_lan_atlas_v5.py` (`unittest`, `<50ms` under `python3 -O`), and POSIX CoW `risk-ledger.jsonl`.
 - **Total Gate 0 Carrying Cost:** **`4.2 / 15.0` (PASS)**.
@@ -499,7 +499,7 @@ Mirroring the project baseline in `README.md` and incorporating the hardened v6.
 - **Multi-Tenant Data Isolation:** `organization_id` is derived exclusively from verified server-side OAuth/JWT sessions or authenticated agent records—never from request bodies—and is enforced at the database layer via foreign keys and PostgreSQL `FORCE ROW LEVEL SECURITY` (`SET LOCAL app.current_org_id`).
 - **Resilient Edge & Standby Behavior:** Combines bounded local SQLite WAL spooling at the edge with 2 local cloud worker replicas competing on PostgreSQL advisory locks (`pg_try_advisory_lock`) every 2 seconds (`< 2s` SIGKILL failover, `< 11s` TCP keepalive release).
 - **Least-Privilege AWS Deployment (`$0.00/mo` Free Tier Ceiling):** Deploys on AWS following defense-in-depth (EC2 `t4g.small`/`t3.micro` locked to port `443`, private Single-AZ RDS `db.t4g.micro` with TLS enforced, IAM Roles, SSM Parameter Store, zero NAT Gateways, zero Redis/DynamoDB, protected by a `$5.00` AWS Budgets alarm).
-- **Clean, Typed, Linted, Tested Python Codebase:** Targets Python 3.12 with strict `ruff`, `mypy --strict`, `sqlfluff`, `pip-audit`, `gitleaks`, `pytest`, and `pytest-cov` gates, plus AST-enforced architectural layer boundaries.
+- **Clean, Typed, Linted, Tested Python Codebase:** Targets Python 3.15.2 with strict `ruff`, `mypy --strict`, `sqlfluff`, `pip-audit`, `gitleaks`, `pytest`, and `pytest-cov` gates, plus AST-enforced architectural layer boundaries.
 
 #### HLD v2.0 NFR Targets Reconciled with v6.0 Baseline
 
@@ -599,7 +599,7 @@ Per HLD v2.0, every observation flows end-to-end across all three trust zones th
 Per Section 2.1 of `LAN Atlas — Audited Agile Roadmap & SRE Specification (v6.0)`, the `LanAtlasv5/` codebase is partitioned into five strictly decoupled layers enforced by an AST import linter (`tests/architecture/test_layer_imports.py`):
 
 1. **Layer 1 — On-Premises Agent (`lanatlas/agent/{scanner,signer,buffer,heartbeat,collector,config}.py`)**
-   - Built on Python 3.12 + `asyncio` + `cryptography==44.0.0` + `httpx==0.28.1` + SQLite 3 WAL edge spool (capped at 500 batches / 50 MB).
+   - Built on Python 3.15.2 + `asyncio` + `cryptography==44.0.0` + `httpx==0.28.1` + SQLite 3 WAL edge spool (capped at 500 batches / 50 MB).
    - Executes in a rootless container as non-root `UID 10001` with `CAP_NET_RAW` only (`--cap-drop=ALL --cap-add=NET_RAW --read-only`).
    - Enforces the RFC 1918 `/22` scan ceiling (blocking `169.254.0.0/16` and public `/8` CIDRs) and signs payloads with per-agent Ed25519 private keys.
 
@@ -645,19 +645,19 @@ Per Section 3 of the v6.0 SRE Specification, each core subsystem evolved from in
 
 ## 4. Technology Stack, Repository Structure & Database Schema
 
-### 4.1 Technology Stack (README.md Baseline vs. v6.0 Pinned Python 3.12 Stack)
+### 4.1 Technology Stack (README.md Baseline vs. v6.0 Pinned Python 3.15.2 Stack)
 
 `README.md` outlines the original baseline stack (citing Python 3, `FastAPI >= 0.136`, `PostgreSQL 18`, `AWS ElastiCache Redis`, `Dramatiq`, and `scapy/ARP`) and references `LAN_Atlas_LLD.pdf` (`v2.0 — PostgreSQL`, migrated from SQLite `v1.3`).
 
-In `LanAtlasv5/` and `LAN-ATLAS-ROADMAP-v6.0`, the stack is pinned to a single-language **Python 3.12** runtime with zero Redis/DynamoDB/NAT Gateway carrying cost (`4.2 / 15.0` Gate 0 CCI):
+In `LanAtlasv5/` and `LAN-ATLAS-ROADMAP-v6.0`, the stack is pinned to a single-language **Python 3.15.2** runtime with zero Redis/DynamoDB/NAT Gateway carrying cost (`4.2 / 15.0` Gate 0 CCI):
 
 | Layer | `README.md` Baseline | v6.0 Pinned Stack (`LanAtlasv5/`) | Purpose |
 |---|---|---|---|
-| **API & Runtime** | FastAPI `>= 0.136` · Python 3 · Uvicorn | Python 3.12 · `FastAPI==0.115.6` · `Uvicorn 0.34.0` · `Pydantic v2 2.10.4` · `Jinja2 3.1.5` | Async REST API, Parse-Don't-Validate schemas, autoescaped HTMX UI |
+| **API & Runtime** | FastAPI `>= 0.136` · Python 3 · Uvicorn | Python 3.15.2· `FastAPI==0.115.6` · `Uvicorn 0.34.0` · `Pydantic v2 2.10.4` · `Jinja2 3.1.5` | Async REST API, Parse-Don't-Validate schemas, autoescaped HTMX UI |
 | **Database** | PostgreSQL 18 · SQLAlchemy 2 · Alembic | PostgreSQL 16 · `SQLAlchemy==2.0.36` · `Alembic==1.14.0` · `psycopg2-binary` | Dual-role production DB, parameterized queries, hand-written migrations |
 | **Security & Auth** | `pwdlib` (Argon2id) · `PyJWT[crypto]` · `cryptography 44` · OAuth 2.0/OIDC | `pwdlib[argon2]==0.2.1` · `pyjwt[crypto]==2.10.1` · `cryptography==44.0.0` · OAuth 2.0/OIDC | Argon2id fallback, `HttpOnly`/`Secure`/`SameSite=Strict` JWT cookies, Ed25519 payload signing |
 | **Rate Limiting & Workers** | `slowapi` · AWS ElastiCache Redis · Dramatiq | Two-tier `agent_id` token-bucket middleware · 2 container replicas + `pg_try_advisory_lock` | CGNAT-safe pre-auth throttling and 2s advisory-lock failover (zero Redis/Dramatiq) |
-| **Agent (On-Prem)** | Python 3 · `scapy`/ARP · SQLite buffer | Python 3.12 · `asyncio` · `httpx==0.28.1` · `cryptography==44.0.0` · SQLite 3 WAL | Non-root (`UID 10001`, `CAP_NET_RAW`) L2/TCP scanning, Ed25519 signing, 500-batch WAL spool |
+| **Agent (On-Prem)** | Python 3 · `scapy`/ARP · SQLite buffer | Python 3.15.2 · `asyncio` · `httpx==0.28.1` · `cryptography==44.0.0` · SQLite 3 WAL | Non-root (`UID 10001`, `CAP_NET_RAW`) L2/TCP scanning, Ed25519 signing, 500-batch WAL spool |
 | **Cloud, Observability & DR** | AWS (RDS, ECR, ElastiCache, CloudWatch) · `boto3` | AWS Free Tier (EC2 `t4g.small`/`t3.micro`, RDS `db.t4g.micro`, SES, SSM, CloudWatch 7d) · Grafana Cloud · Cloudflare R2 | `$0.00/mo` Free Tier hosting, outbound Prometheus Remote-Write, asymmetric GPG 3-2-1 R2 Object Lock DR |
 | **Testing & CI/CD** | `pytest` · `pytest-cov` · `ruff` · `mypy` · GitHub Actions · Docker · Dependabot | `pytest==8.3.4` · `pytest-cov` · `ruff` · `mypy --strict` · `sqlfluff` · `pip-audit` · `gitleaks` · `shellcheck` · GitHub Actions | 26 deterministic CI gates (`TR-01`–`TR-26`), AST layer linting, `verify_lan_atlas_v5.py` |
 
@@ -983,7 +983,7 @@ All tables in Groups 2–6 (and tenant-scoped tables in Group 1) carry `organiza
 
 - **Story ID & Links:** `US-1.1` ([GitHub #7](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/7), [#17](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/17), [#13](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/13), [#83](https://github.com/CloudSecurityOfficeHours/LANAtlas/issues/83))
 - **Metadata:** **Owners:** `@hetzipickle`, `@Computer8543` | **Est/Priority:** 3 pts / P0 | **Remediates:** `TR-02`, `TR-23` | **Carrying Cost:** `4.2 < 15.0` (4 contracts)
-- **Acceptance Criteria:** Pin verified Python 3.12 packages (`fastapi==0.115.6`, `pwdlib[argon2]==0.2.1`, `pytest==8.3.4`, `cryptography==44.0.0`), align `.devcontainer/devcontainer.json` with `docs/requirements-dev.txt`, strip `=======` markers from `.gitignore`, and verify Gate 0 CCI (`4.2 < 15.0`) via `python3 -O verify_lan_atlas_v5.py`.
+- **Acceptance Criteria:** Pin verified Python 3.15.2 packages (`fastapi==0.115.6`, `pwdlib[argon2]==0.2.1`, `pytest==8.3.4`, `cryptography==44.0.0`), align `.devcontainer/devcontainer.json` with `docs/requirements-dev.txt`, strip `=======` markers from `.gitignore`, and verify Gate 0 CCI (`4.2 < 15.0`) via `python3 -O verify_lan_atlas_v5.py`.
 - **Domain Primitives:** `DP-Env-PinnedRequirement` (frozen slotted PyPI pin), `DP-Env-GitignoreLine` (conflict-free ignore rule), `DP-Gate0-CarryingCostScore` (`< 15.0` float invariant).
 - **Frozen Contracts:**
   1. `BoundaryParser` — `parse_requirements_manifest`: Parses `docs/requirements-dev.txt` and `.devcontainer/devcontainer.json` into `DP-Env-PinnedRequirement` tuples.
@@ -1536,7 +1536,7 @@ See [Contributor Setup](contributor-setup.md) for local environment and `.env` i
 
 ### 7.1 Local Environment Setup
 
-**Prerequisites:** Git and Python 3.12 (`python3 --version`, or `python --version` on Windows).
+**Prerequisites:** Git and Python 3.15.2 (`python3 --version`, or `python --version` on Windows).
 
 1. **Clone the repository and create a virtual environment (`.venv`):**
 
@@ -1625,7 +1625,7 @@ GitHub Actions:                     ├──▶ code-quality (PR + main) ──
 | **`pytest` / `pytest-cov`** | Testing (`test`) | Runs automated unit/integration test suites and enforces minimum code execution coverage. | Proves application logic actually works against real inputs rather than relying on static checks alone. | [pytest Docs](https://docs.pytest.org) |
 | **PostgreSQL CI Service** | Testing (`test`) | Spins up an ephemeral `postgres:16` service container with `pg_isready` healthchecks inside the CI job. | Tests run against the same PostgreSQL engine used in AWS RDS, avoiding SQLite behavioral discrepancies. | [PostgreSQL Docs](https://www.postgresql.org/docs) |
 | **`Alembic`** | Testing (`test`) | Executes versioned SQLAlchemy database schema migrations (`alembic upgrade head`) against the fresh Postgres container. | Verifies that production migration scripts apply cleanly before application tests execute. | [Alembic Docs](https://alembic.sqlalchemy.org) |
-| **`Docker`** | Infrastructure (`build-and-push`) | Packages the Python 3.12 runtime, dependencies, and application into a portable container image. | Guarantees identical runtime behavior across CI, staging, and production ("works on my machine" eliminated). | [Docker Docs](https://docs.docker.com) |
+| **`Docker`** | Infrastructure (`build-and-push`) | Packages the Python 3.15.2 runtime, dependencies, and application into a portable container image. | Guarantees identical runtime behavior across CI, staging, and production ("works on my machine" eliminated). | [Docker Docs](https://docs.docker.com) |
 | **`AWS ECR`** | Infrastructure (`build-and-push`) | Private AWS container registry storing SHA-tagged Docker images pushed from `main`. | Keeps images in the same AWS cloud and IAM boundary as RDS and compute without a third-party registry. | [AWS ECR Docs](https://docs.aws.amazon.com/ecr) |
 
 ### 7.5 Security Framework Alignment (OWASP SAMM v2.0 & NIST SP 800-218 SSDF)
